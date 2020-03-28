@@ -20,11 +20,16 @@ in \code{data}. The user is free to choose any clustering.
 If unspecified, k-means clustering is used by default.}
 }
 \value{
-A list that contains two items:
+A list that contains four items:
 \item{\code{D}}{a matrix that contains the discretized version of the original \code{data}.
 The discretize values are one(1)-based.}
 
-\item{\code{grid}}{a list of vectors containing decision boundaries for each variable/dimension}
+\item{\code{grid}}{a list of vectors containing decision boundaries for each variable/dimension.}
+
+\item{\code{clabels}}{a vector containing cluster labels for each observation in \code{data}.}
+
+\item{\code{csimilarity}}{a similarity score between clusters from joint discretization
+\code{D} and cluster labels \code{clabels}. The score is the adjusted Rand index.}
 }
 \description{
 Discretize continuous multivariate data using a grid that captures the joint distribution via

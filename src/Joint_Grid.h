@@ -11,6 +11,7 @@
 #include <iostream>
 #include <algorithm>
 #include <assert.h>
+#include <climits>
 #include <math.h>
 
 #include "Clusters.h"
@@ -21,7 +22,7 @@ vector<double> Find_1D_Grid(Cluster &clusters, int dim);
 
 vector< vector<double > > Find_Grid(Cluster &clusters);
 
-vector<vector<double> > prep_index(vector<double> &c1, vector<double> &c2, double center_1, double center_2);
+vector<vector<double> > prep_index(vector<double> &c1, vector<double> &c2, double median_1, double median_2);
 
 
 double binary_search_index(const vector<vector<double> > &c_index, const int left, const int right, const int size_c1,

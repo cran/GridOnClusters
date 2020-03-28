@@ -6,9 +6,9 @@ The 'GridOnClusters' R package
 Discretize continuous multivariate data using a grid
     that captures the joint distribution via preserving clusters in
     the original data. Joint grid discretization is applicable as a
-    data transformation step in methods inferring dependency by
-    association, function, or causality with assuming a parametric
-    model.
+    data transformation step before using other methods to infer
+    association, function, or causality without assuming a
+    parametric model.
 
 ### When to use the package
 

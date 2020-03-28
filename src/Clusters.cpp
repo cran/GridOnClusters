@@ -6,23 +6,23 @@
 #include "Clusters.h"
 
 // testing purpose only
-Cluster::Cluster(vector<vector<double> > centers) {
-    this->num_clusters = centers.size();
-    this->cluster_centers = centers;
+Cluster::Cluster(vector<vector<double> > medians) {
+    this->num_clusters = medians.size();
+    this->cluster_medians = medians;
 }
 
 
 // testing purpose only
-Cluster::Cluster(vector<vector<double> > centers, vector<vector<vector<double> > > data) {
-    this->num_clusters = centers.size();
-    this->cluster_centers = centers;
+Cluster::Cluster(vector<vector<double> > medians, vector<vector<vector<double> > > data) {
+    this->num_clusters = medians.size();
+    this->cluster_medians = medians;
     this->cluster_points = data;
 }
 
-Cluster::Cluster(vector<int> labels, vector<vector<double> > centers, vector<vector<double> > data) {
+Cluster::Cluster(int k, vector<int> labels, vector<vector<double> > data) {
     // get number of clusters
-    this->num_clusters = centers.size();
-    int dims = centers[0].size();
+    this->num_clusters = k;
+    int dims = data[0].size();
     this->cluster_points = vector<vector<vector<double> > >(num_clusters,
                                                             vector<vector<double>>(dims, vector<double>(0)));
 
@@ -36,13 +36,33 @@ Cluster::Cluster(vector<int> labels, vector<vector<double> > centers, vector<vec
             this->cluster_points[*label_iter][i].push_back((*data_iter)[i]);
         }
     }
-    this->cluster_centers = centers;
+
+    //calculate median
+    this->cluster_medians = vector<vector<double> >(this->num_clusters, vector<double>(dims, 0));
+    double mid = 0;
+    double mid_index = 0;
+    vector<double> temp;
+    for (int i = 0; i < this->num_clusters; ++i) {
+        for (int j = 0; j < dims; ++j) {
+            temp = this->cluster_points[i][j];
+            sort(temp.begin(), temp.end());
+            if (temp.size() % 2 == 0) {//mid_point is in between
+                mid_index = temp.size() / 2;
+                mid = (temp[mid_index] + temp[mid_index + 1]) / 2.0;
+            } else {//mid_point is in data
+                mid_index = temp.size() / 2.0;
+                mid = temp[ceil(mid_index)];
+            }
+            this->cluster_medians[i][j] = mid;
+            temp.clear();
+        }
+    }
 }
 
-void Cluster::set_clusters(vector<int> labels, vector<vector<double> > centers, vector<vector<double> > data) {
+Cluster::Cluster(vector<int> labels, vector<vector<double> > medians, vector<vector<double> > data) {
     // get number of clusters
-    this->num_clusters = centers.size();
-    int dims = centers[0].size();
+    this->num_clusters = medians.size();
+    int dims = medians[0].size();
     this->cluster_points = vector<vector<vector<double> > >(num_clusters,
                                                             vector<vector<double>>(dims, vector<double>(0)));
 
@@ -56,15 +76,24 @@ void Cluster::set_clusters(vector<int> labels, vector<vector<double> > centers, 
             this->cluster_points[*label_iter][i].push_back((*data_iter)[i]);
         }
     }
-    this->cluster_centers = centers;
+    this->cluster_medians = medians;
 }
+
 
 vector<vector<vector<double> > > Cluster::get_points() {
     return this->cluster_points;
 }
 
-vector<vector<double> > Cluster::get_centers() {
-    return this->cluster_centers;
+vector<vector<double> > Cluster::get_points(int index) {
+    return this->cluster_points[index];
+}
+
+vector<vector<double> > Cluster::get_medians() {
+    return this->cluster_medians;
+}
+
+vector<double> Cluster::get_medians(int index) {
+    return this->cluster_medians[index];
 }
 
 void Cluster::set_grids(grid G) {
@@ -82,7 +111,7 @@ vector<int> Cluster::sort_clusters(int dim) {
 
     // sort indexes based on comparing values in v
     sort(idx.begin(), idx.end(),
-         [this, dim](size_t i1, size_t i2) { return this->cluster_centers[i1][dim] < this->cluster_centers[i2][dim]; });
+         [this, dim](size_t i1, size_t i2) { return this->cluster_medians[i1][dim] < this->cluster_medians[i2][dim]; });
 
     // if (DEBUG == 1) {
     //     vector<int>::iterator ite = idx.begin();
@@ -95,14 +124,5 @@ vector<int> Cluster::sort_clusters(int dim) {
 }
 
 int Cluster::get_dims() {
-    return this->cluster_centers[0].size();
-}
-
-vector<vector<double> > Cluster::get_points(int index) {
-    return this->cluster_points[index];
-}
-
-
-vector<double> Cluster::get_centers(int index) {
-    return this->cluster_centers[index];
+    return this->cluster_medians[0].size();
 }

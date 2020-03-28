@@ -1,8 +1,8 @@
 Package: GridOnClusters
 Type: Package
 Title: Joint Discretization of Data on a Grid that Preserves Clusters
-Version: 0.0.3
-Date: 2020-03-17
+Version: 0.0.6
+Date: 2020-03-26
 Authors@R: 
     c(person(given = "Jiandong",
              family = "Wang",
@@ -10,8 +10,8 @@ Authors@R:
              email = "wangjd24@nmsu.edu"),
       person(given = "Sajal",
              family = "Kumar",
-             role = c("aut"),
-             email = "kumarsajal49@gmail.com",
+             role = "aut",
+             email = "sajal49@nmsu.edu",
              comment = c(ORCID = "0000-0003-0930-1582")),
       person(given = "Joe",
              family = "Song",
@@ -25,10 +25,10 @@ Maintainer: Joe Song <joemsong@cs.nmsu.edu>
 Description: Discretize continuous multivariate data using a grid
     that captures the joint distribution via preserving clusters in
     the original data. Joint grid discretization is applicable as a
-    data transformation step in methods inferring dependency by
-    association, function, or causality with assuming a parametric
-    model.
-Imports: Rcpp, cluster, GDAtools
+    data transformation step before using other methods to infer
+    association, function, or causality without assuming a
+    parametric model.
+Imports: Rcpp, cluster, fossil, dqrng
 Suggests: Ckmeans.1d.dp, FunChisq, knitr, testthat (>= 2.1.0),
         rmarkdown
 Depends: R (>= 3.0)
@@ -39,6 +39,6 @@ LinkingTo: Rcpp
 RoxygenNote: 7.1.0
 NeedsCompilation: yes
 VignetteBuilder: knitr
-Packaged: 2020-03-18 04:12:30 UTC; joesong
+Packaged: 2020-03-27 02:45:40 UTC; joesong
 Repository: CRAN
-Date/Publication: 2020-03-20 14:40:05 UTC
+Date/Publication: 2020-03-28 01:10:02 UTC

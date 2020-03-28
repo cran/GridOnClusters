@@ -2,8 +2,9 @@
 
 export(discretize.jointly)
 import(Rcpp)
-importFrom(GDAtools,medoids)
 importFrom(cluster,silhouette)
+importFrom(dqrng,dqsample)
+importFrom(fossil,adj.rand.index)
 importFrom(stats,dist)
 importFrom(stats,kmeans)
 useDynLib(GridOnClusters)

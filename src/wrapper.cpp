@@ -9,7 +9,7 @@
 Rcpp::List findgrid(Rcpp::List cluster_info, int k, int nobs, int ndims) {
 
   // obtain cluster centers
-  Rcpp::NumericMatrix centers = Rcpp::as<Rcpp::NumericMatrix>(cluster_info["centers"]);
+  // Rcpp::NumericMatrix centers = Rcpp::as<Rcpp::NumericMatrix>(cluster_info["centers"]);
 
   // obtain cluster labels
   Rcpp::IntegerVector labels = Rcpp::as<Rcpp::IntegerVector>(cluster_info["clusters"]);
@@ -18,12 +18,12 @@ Rcpp::List findgrid(Rcpp::List cluster_info, int k, int nobs, int ndims) {
   Rcpp::NumericMatrix data = Rcpp::as<Rcpp::NumericMatrix>(cluster_info["data"]);
 
   // type-cast centers to std::vector<std::vector<double > >
-  vector<vector<double> > _centers(k, vector<double>(ndims, 0));
-  for(int i=0; i<k; i++){
-    for(int j=0; j<ndims; j++){
-      _centers[i][j] = centers(i,j);
-    }
-  }
+  // vector<vector<double> > _centers(k, vector<double>(ndims, 0));
+  // for(int i=0; i<k; i++){
+  //   for(int j=0; j<ndims; j++){
+  //     _centers[i][j] = centers(i,j);
+  //   }
+  // }
 
   // type-cast labels to std::vector<int>
   vector<int> _labels = Rcpp::as<vector<int> >(labels);
@@ -37,7 +37,7 @@ Rcpp::List findgrid(Rcpp::List cluster_info, int k, int nobs, int ndims) {
   }
 
   // make a 'cluster' object
-  Cluster clust_obj(_labels, _centers, _data);
+  Cluster clust_obj(k, _labels, _data);
 
   // get grid lines
   vector<vector<double> > _grid_lines = Find_Grid(clust_obj);

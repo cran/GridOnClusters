@@ -8,6 +8,7 @@ library(testthat)
 library(FunChisq)
 library(GridOnClusters)
 library(cluster)
+library(dqrng)
 
 context("Testing GridOnClusters")
 
@@ -17,256 +18,193 @@ test_that("Testing discretize.jointly", {
   # y = f(x)
   # z = f(x)
   # k = constant
-  set.seed(123)
 
-  x = rnorm(100, mean=5, sd=1)
+  dqset.seed(123)
+  x = dqrnorm(100, mean=5, sd=1)
   y = sin(x)
   z = cos(x)
-
   data = cbind(x, y, z)
-  discr = discretize.jointly(data, k=3)$D
+  discr = discretize.jointly(data, k=3)
 
   # test marginal levels
-  expect_equivalent(length(unique(discr[,1])), 3)
-  expect_equivalent(length(unique(discr[,2])), 3)
-  expect_equivalent(length(unique(discr[,3])), 3)
+  expect_equivalent(length(unique(discr$D[,1])), 3)
+  expect_equivalent(length(unique(discr$D[,2])), 2)
+  expect_equivalent(length(unique(discr$D[,3])), 2)
 
   # test marginal distribution
-  expect_equivalent(table(discr[,1]), as.table(c(24, 49, 27)))
-  expect_equivalent(table(discr[,2]), as.table(c(56, 18, 26)))
-  expect_equivalent(table(discr[,3]), as.table(c(24, 48, 28)))
+  expect_equivalent(table(discr$D[,1]), as.table(c(39, 43, 18)))
+  expect_equivalent(table(discr$D[,2]), as.table(c(79, 21)))
+  expect_equivalent(table(discr$D[,3]), as.table(c(39, 61)))
 
-  # test functional dependency
-  dim12 = table(discr[,1], discr[,2])
-  expect_equivalent(dim12, as.table(matrix(c(12, 8, 4,
-                                             44, 5, 0,
-                                             0, 5, 22),
-                                           nrow=3, ncol=3, byrow = T)))
+  # test 2d joint distributions
+  dim12 = table(discr$D[,1], discr$D[,2])
+  expect_equivalent(dim12, as.table(matrix(c(36, 3,
+                                             43, 0,
+                                             0, 18),
+                                           nrow=3, ncol=2, byrow = T)))
 
-  stat12 = fun.chisq.test(dim12)
-  expect_equivalent(round(stat12$statistic, digits = 2), 80.54)
-  expect_equivalent(signif(stat12$p.value, digits = 3), 1.34e-16)
+  dim13 = table(discr$D[,1], discr$D[,3])
+  expect_equivalent(dim13, as.table(matrix(c(39, 0,
+                                             0, 43,
+                                             0, 18),
+                                           nrow=3, ncol=2, byrow = T)))
 
-  dim13 = table(discr[,1], discr[,3])
-  expect_equivalent(dim13, as.table(matrix(c(24, 0, 0,
-                                             0, 46, 3,
-                                             0, 2, 25),
-                                           nrow=3, ncol=3, byrow = T)))
+  dim23 = table(discr$D[,2], discr$D[,3])
+  expect_equivalent(dim23, as.table(matrix(c(36, 43,
+                                             3, 18),
+                                           nrow=2, ncol=2, byrow = T)))
 
-  stat13 = fun.chisq.test(dim13)
-  expect_equivalent(round(stat13$statistic, digits = 2), 162.07)
-  expect_equivalent(signif(stat13$p.value, digits = 3), 5.26e-34)
-
+  # test ARI score
+  expect_equivalent(round(discr$csimilarity, digits = 3), 1)
 
   # test 2
   # y = f(x)
   # z = f(x)
   # k = variable (determined by silhouette)
-  set.seed(321)
+  dqset.seed(321)
 
-  x = rchisq(n = 50, df = 4)
+  x = dqrnorm(n = 100, mean=10, sd=2)
   y = log(x)
   z = tan(x)
-
   data = cbind(x, y, z)
-  discr = discretize.jointly(data, k=c(3:10))$D
+  discr = discretize.jointly(data, k=c(3:10))
 
   # test marginal levels
-  expect_equivalent(length(unique(discr[,1])), 7)
-  expect_equivalent(length(unique(discr[,2])), 6)
-  expect_equivalent(length(unique(discr[,3])), 5)
+  expect_equivalent(length(unique(discr$D[,1])), 7)
+  expect_equivalent(length(unique(discr$D[,2])), 7)
+  expect_equivalent(length(unique(discr$D[,3])), 3)
 
   # test marginal distribution
-  expect_equivalent(table(discr[,1]), as.table(c(6, 2, 2, 12, 13, 9, 6)))
-  expect_equivalent(table(discr[,2]), as.table(c(6, 2, 2, 26, 8, 6)))
-  expect_equivalent(table(discr[,3]), as.table(c(2, 37, 7, 3, 1)))
+  expect_equivalent(table(discr$D[,1]), as.table(c(17, 5, 13, 33, 6, 4, 22)))
+  expect_equivalent(table(discr$D[,2]), as.table(c(17, 6, 12, 33, 6, 4, 22)))
+  expect_equivalent(table(discr$D[,3]), as.table(c(5, 82, 13)))
 
-  # test functional dependency
-  dim12 = table(discr[,1], discr[,2])
-  expect_equivalent(dim12, as.table(matrix(c(6, 0, 0, 0, 0, 0,
-                                             0, 2, 0, 0, 0, 0,
-                                             0, 0, 2, 0, 0, 0,
-                                             0, 0, 0, 12, 0, 0,
-                                             0, 0, 0, 13, 0, 0,
-                                             0, 0, 0, 1, 8, 0,
-                                             0, 0, 0, 0, 0, 6),
-                                           nrow=7, ncol=6, byrow = T)))
+  # test 2d joint distributions
+  dim12 = table(discr$D[,1], discr$D[,2])
+  expect_equivalent(dim12, as.table(matrix(c(17, 0, 0, 0, 0, 0, 0,
+                                             0, 5, 0, 0, 0, 0, 0,
+                                             0, 1, 12, 0, 0, 0, 0,
+                                             0, 0, 0, 33, 0, 0, 0,
+                                             0, 0, 0, 0, 6, 0, 0,
+                                             0, 0, 0, 0, 0, 4, 0,
+                                             0, 0, 0, 0, 0, 0, 22),
+                                           nrow=7, ncol=7, byrow = T)))
+  dim13 = table(discr$D[,1], discr$D[,3])
+  expect_equivalent(dim13, as.table(matrix(c(0, 16, 1,
+                                             0, 0, 5,
+                                             1, 12, 0,
+                                             0, 33, 0,
+                                             0, 0, 6,
+                                             4, 0, 0,
+                                             0, 21, 1),
+                                           nrow=7, ncol=3, byrow = T)))
+  dim23 = table(discr$D[,2], discr$D[,3])
+  expect_equivalent(dim23, as.table(matrix(c(0, 16, 1,
+                                             1, 0, 5,
+                                             0, 12, 0,
+                                             0, 33, 0,
+                                             0, 0, 6,
+                                             4, 0, 0,
+                                             0, 21, 1),
+                                           nrow=7, ncol=3, byrow = T)))
 
-  stat12 = fun.chisq.test(dim12)
-  expect_equivalent(round(stat12$statistic, digits = 2), 190.93)
-  expect_equivalent(signif(stat12$p.value, digits = 3), 2.43e-25)
-
-  dim13 = table(discr[,1], discr[,3])
-  expect_equivalent(dim13, as.table(matrix(c(0, 3, 3, 0, 0,
-                                             0, 0, 0, 1, 1,
-                                             2, 0, 0, 0, 0,
-                                             0, 12, 0, 0, 0,
-                                             0, 9, 4, 0, 0,
-                                             0, 7, 0, 2, 0,
-                                             0, 6, 0, 0, 0),
-                                           nrow=7, ncol=5, byrow = T)))
-
-  stat13 = fun.chisq.test(dim13)
-  expect_equivalent(round(stat13$statistic, digits = 2), 43.55)
-  expect_equivalent(signif(stat13$p.value, digits = 3), 0.0086)
+  # test ARI score
+  expect_equivalent(round(discr$csimilarity, digits = 3), 0.948)
 
 
   # test 3
   # y != f(x)
   # z = f(x, y)
   # k = variable (determined by silhouette)
-  set.seed(1234)
+  dqset.seed(1234)
 
-  x = rchisq(n = 50, df = 4)
-  y = rnorm(50, mean=2, sd=0.5)
+  x = dqrexp(n=50, rate = 0.6)
+  y = dqrnorm(50, mean=2, sd=0.5)
   z = sin(x) + cos(y)
-
   data = cbind(x, y, z)
-  discr = discretize.jointly(data, k=c(3:10))$D
+  discr = discretize.jointly(data, k=c(3:10))
 
   # test marginal levels
-  expect_equivalent(length(unique(discr[,1])), 4)
-  expect_equivalent(length(unique(discr[,2])), 2)
-  expect_equivalent(length(unique(discr[,3])), 2)
+  expect_equivalent(length(unique(discr$D[,1])), 3)
+  expect_equivalent(length(unique(discr$D[,2])), 2)
+  expect_equivalent(length(unique(discr$D[,3])), 2)
 
   # test marginal distribution
-  expect_equivalent(table(discr[,1]), as.table(c(19, 22, 8, 1)))
-  expect_equivalent(table(discr[,2]), as.table(c(21, 29)))
-  expect_equivalent(table(discr[,3]), as.table(c(18, 32)))
+  expect_equivalent(table(discr$D[,1]), as.table(c(34, 12, 4)))
+  expect_equivalent(table(discr$D[,2]), as.table(c(28, 22)))
+  expect_equivalent(table(discr$D[,3]), as.table(c(14, 36)))
 
-  # test functional dependency
-  dim12 = table(discr[,1], discr[,2])
-  expect_equivalent(dim12, as.table(matrix(c(8, 11,
-                                             6, 16,
-                                             6, 2,
-                                             1, 0),
-                                           nrow=4, ncol=2, byrow = T)))
+  # test 2d joint distributions
+  dim12 = table(discr$D[,1], discr$D[,2])
+  expect_equivalent(dim12, as.table(matrix(c(19, 15,
+                                             6, 6,
+                                             3, 1),
+                                           nrow=3, ncol=2, byrow = T)))
 
-  stat12 = fun.chisq.test(dim12)
-  expect_equivalent(round(stat12$statistic, digits = 2), 6.74)
-  expect_equivalent(signif(stat12$p.value, digits = 3), 0.0807)
+  dim13 = table(discr$D[,1], discr$D[,3])
+  expect_equivalent(dim13, as.table(matrix(c(6, 28,
+                                             5, 7,
+                                             3, 1),
+                                           nrow=3, ncol=2, byrow = T)))
 
-  dim13 = table(discr[,1], discr[,3])
-  expect_equivalent(dim13, as.table(matrix(c(1, 18,
-                                             13, 9,
-                                             4, 4,
-                                             0, 1),
-                                           nrow=4, ncol=2, byrow = T)))
-
-  stat13 = fun.chisq.test(dim13)
-  expect_equivalent(round(stat13$statistic, digits = 2), 13.02)
-  expect_equivalent(signif(stat13$p.value, digits = 3), 0.0046)
-
-  dim23 = table(discr[,2], discr[,3])
-  expect_equivalent(dim23, as.table(matrix(c(4, 17,
-                                             14, 15),
+  dim23 = table(discr$D[,2], discr$D[,3])
+  expect_equivalent(dim23, as.table(matrix(c(5, 23,
+                                             9, 13),
                                            nrow=2, ncol=2, byrow = T)))
 
-  stat23 = fun.chisq.test(dim23)
-  expect_equivalent(round(stat23$statistic, digits = 2), 4.16)
-  expect_equivalent(signif(stat23$p.value, digits = 3), 0.0413)
-
+  # test ARI score
+  expect_equivalent(round(discr$csimilarity, digits = 3), 0.985)
 
   # test 4
-  # y = f(x)
-  # z = f(y)
-  # k = variable (determined by silhouette)
-  set.seed(4321)
-
-  x = rchisq(n = 100, df = 5)
-  y = sin(x)
-  z = cos(y)
-
-  data = cbind(x, y, z)
-  discr = discretize.jointly(data, k=c(3:10))$D
-
-  # test marginal levels
-  expect_equivalent(length(unique(discr[,1])), 7)
-  expect_equivalent(length(unique(discr[,2])), 3)
-  expect_equivalent(length(unique(discr[,3])), 3)
-
-  # test marginal distribution
-  expect_equivalent(table(discr[,1]), as.table(c(19, 14, 25, 13, 15, 12, 2)))
-  expect_equivalent(table(discr[,2]), as.table(c(29, 39, 32)))
-  expect_equivalent(table(discr[,3]), as.table(c(56, 25, 19)))
-
-  # test functional dependency
-  dim12 = table(discr[,1], discr[,2])
-  expect_equivalent(dim12, as.table(matrix(c(0, 3, 16,
-                                             0, 14, 0,
-                                             23, 2, 0,
-                                             0, 12, 1,
-                                             0, 0, 15,
-                                             6, 6, 0,
-                                             0, 2, 0),
-                                           nrow=7, ncol=3, byrow = T)))
-
-  stat12 = fun.chisq.test(dim12)
-  expect_equivalent(round(stat12$statistic, digits = 2), 148.68)
-  expect_equivalent(signif(stat12$p.value, digits = 3), 1.05e-25)
-
-  dim23 = table(discr[,2], discr[,3])
-  expect_equivalent(dim23, as.table(matrix(c(28, 1, 0,
-                                             0, 20, 19,
-                                             28, 4, 0),
-                                           nrow=3, ncol=3, byrow = T)))
-
-  stat23 = fun.chisq.test(dim23)
-  expect_equivalent(round(stat23$statistic, digits = 2), 91.09)
-  expect_equivalent(signif(stat23$p.value, digits = 3), 7.74e-19)
-
-
-  # test 5
   # y = f(x)
   # z = f(x)
   # k = fixed
   # using an alternate clustering strategy
-  set.seed(2468)
+  dqset.seed(2468)
 
-  x = rnorm(n = 1000, mean = 10, sd = 2)
+  x = dqrnorm(n = 1000, mean = 10, sd = 2)
   y = sin(x)
   z = cos(y)
-
   data = cbind(x, y, z)
-
   # use PAM to cluster
   alt.cluster = pam(x = data, k = 5, diss = FALSE, metric = "euclidean", cluster.only = TRUE)
 
-  discr = discretize.jointly(data = data, cluster_label = alt.cluster)$D
+  discr = discretize.jointly(data = data, cluster_label = alt.cluster)
 
   # test marginal levels
-  expect_equivalent(length(unique(discr[,1])), 5)
-  expect_equivalent(length(unique(discr[,2])), 4)
-  expect_equivalent(length(unique(discr[,3])), 2)
+  expect_equivalent(length(unique(discr$D[,1])), 5)
+  expect_equivalent(length(unique(discr$D[,2])), 3)
+  expect_equivalent(length(unique(discr$D[,3])), 2)
 
   # test marginal distribution
-  expect_equivalent(table(discr[,1]), as.table(c(155, 219, 219, 267, 140)))
-  expect_equivalent(table(discr[,2]), as.table(c(275, 222, 314, 189)))
-  expect_equivalent(table(discr[,3]), as.table(c(484, 516)))
+  expect_equivalent(table(discr$D[,1]), as.table(c(82, 197, 251, 294, 176)))
+  expect_equivalent(table(discr$D[,2]), as.table(c(323, 451, 226)))
+  expect_equivalent(table(discr$D[,3]), as.table(c(472, 528)))
 
-  # test functional dependency
-  dim12 = table(discr[,1], discr[,2])
-  expect_equivalent(dim12, as.table(matrix(c(17, 8, 53, 77,
-                                             0, 0, 136, 83,
-                                             35, 141, 43, 0,
-                                             223, 44, 0, 0,
-                                             0, 29, 82, 29),
-                                           nrow=5, ncol=4, byrow = T)))
+  # test 2d joint distributions
+  dim12 = table(discr$D[,1], discr$D[,2])
+  expect_equivalent(dim12, as.table(matrix(c(18, 59, 5,
+                                             0, 13, 184,
+                                             0, 251, 0,
+                                             293, 1, 0,
+                                             12, 127, 37),
+                                           nrow=5, ncol=3, byrow = T)))
 
-  stat12 = fun.chisq.test(dim12)
-  expect_equivalent(round(stat12$statistic, digits = 2), 1094.8)
-  expect_equivalent(signif(stat12$p.value, digits = 3), 7.63e-227)
-
-  dim13 = table(discr[,1], discr[,3])
-  expect_equivalent(dim13, as.table(matrix(c(97, 58,
-                                             109, 110,
-                                             29, 190,
-                                             211, 56,
-                                             38, 102),
+  dim13 = table(discr$D[,1], discr$D[,3])
+  expect_equivalent(dim13, as.table(matrix(c(14, 68,
+                                             165, 32,
+                                             0, 251,
+                                             265, 29,
+                                             28, 148),
                                            nrow=5, ncol=2, byrow = T)))
 
-  stat13 = fun.chisq.test(dim13)
-  expect_equivalent(round(stat13$statistic, digits = 2), 246.39)
-  expect_equivalent(signif(stat13$p.value, digits = 3), 3.9e-52)
+  dim23 = table(discr$D[,2], discr$D[,3])
+  expect_equivalent(dim23, as.table(matrix(c(279, 44,
+                                             0, 451,
+                                             193, 33),
+                                           nrow=3, ncol=2, byrow = T)))
+
+  # test ARI score
+  expect_equivalent(round(discr$csimilarity, digits = 3), 0.913)
 
 })

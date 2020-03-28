@@ -8,10 +8,11 @@
 #' Discretize continuous multivariate data using a grid that captures the joint distribution via
 #' preserving clusters in the original data
 #'
-#' @importFrom GDAtools medoids
 #' @importFrom cluster silhouette
 #' @importFrom stats kmeans
+#' @importFrom fossil adj.rand.index
 #' @importFrom stats dist
+#' @importFrom dqrng dqsample
 #' @import Rcpp
 #' @useDynLib GridOnClusters
 #'
@@ -29,11 +30,16 @@
 #'
 #' @return
 #'
-#' A list that contains two items:
+#' A list that contains four items:
 #' \item{\code{D}}{a matrix that contains the discretized version of the original \code{data}.
 #' The discretize values are one(1)-based.}
 #'
-#' \item{\code{grid}}{a list of vectors containing decision boundaries for each variable/dimension}
+#' \item{\code{grid}}{a list of vectors containing decision boundaries for each variable/dimension.}
+#'
+#' \item{\code{clabels}}{a vector containing cluster labels for each observation in \code{data}.}
+#'
+#' \item{\code{csimilarity}}{a similarity score between clusters from joint discretization
+#' \code{D} and cluster labels \code{clabels}. The score is the adjusted Rand index.}
 #'
 #' @examples
 #' # using a specified \code{k}
@@ -100,11 +106,14 @@ discretize.jointly = function(data, k=c(2:10), cluster_label=NULL){
     # is k a single number or a range
     if(length(k) == 1){
 
+      # randomly generate centers
+      centers = dqsample(which(!duplicated(data)), k)
+
       # get cluster information for 'k'
-      cluster_info = kmeans(data, centers = k)
+      cluster_info = kmeans(data, centers = as.matrix(data[centers,]))
 
       # only keep cluster centers and labels
-      cluster_info = list(centers = as.matrix(cluster_info$centers),
+      cluster_info = list(#centers = as.matrix(cluster_info$centers),
                           clusters = as.vector(cluster_info$cluster)-1,
                           data = as.matrix(data))
 
@@ -114,7 +123,8 @@ discretize.jointly = function(data, k=c(2:10), cluster_label=NULL){
 
       # compute cluster info and silhouette score the cluster range k
       cluster_info = lapply(k, function(i){
-        data_clust = kmeans(data, centers = i)
+        centers = dqsample(which(!duplicated(data)), i)
+        data_clust = kmeans(data, centers = as.matrix(data[centers,]))
         return(list(data_clust$cluster, data_clust$centers, mean(silhouette(data_clust$cluster, dist=data_dist)[,3])))
       })
 
@@ -125,7 +135,7 @@ discretize.jointly = function(data, k=c(2:10), cluster_label=NULL){
       max_silhouette = max(which.max(silhouette_scr)) # take the bigger k out of those with equal silhouette scores
 
       # only keep cluster centers and labels for the 'k' with max silhouette
-      cluster_info = list(centers = as.matrix(cluster_info[[max_silhouette]][[2]]),
+      cluster_info = list(#centers = as.matrix(cluster_info[[max_silhouette]][[2]]),
                           clusters = as.vector(cluster_info[[max_silhouette]][[1]]-1),
                           data = as.matrix(data))
     }
@@ -133,21 +143,34 @@ discretize.jointly = function(data, k=c(2:10), cluster_label=NULL){
 
     cluster_label = as.numeric(as.factor(cluster_label)) # making labels consecutive
 
-    # find medoids
-    centers = data[medoids(D = dist(data), cl = cluster_label),,drop=FALSE]
+    # # find medoids
+    # centers = data[medoids(D = dist(data), cl = cluster_label),,drop=FALSE]
 
-    cluster_info = list(centers = as.matrix(centers),
+    cluster_info = list(#centers = as.matrix(centers),
                         clusters = cluster_label-1,
                         data = as.matrix(data))
   }
 
   # get grid lines
-  grid_lines = findgrid(cluster_info, nrow(cluster_info$centers), nrow(data), ncol(data))
+  grid_lines = findgrid(cluster_info, length(unique(cluster_info$clusters)), nrow(data), ncol(data))
+
+  # filter grid lines
+  grid_lines = lapply(grid_lines, function(i){
+    mx = max(i)
+    return(i[-which(i == mx)])
+  })
 
   # discretize data
   discr_data = discretize_data(data, grid_lines)
 
-  return(list(D=discr_data, grid=grid_lines))
+  # compute adjusted random index
+  ndim_cluster_dist = discr_data[,1]
+  for(i in 2:ncol(discr_data)){
+    ndim_cluster_dist = paste0(ndim_cluster_dist,",",discr_data[,2])
+  }
+  cluster_similarity = adj.rand.index(as.numeric(as.factor(ndim_cluster_dist))-1, cluster_info$clusters)
+
+  return(list(D=discr_data, grid=grid_lines, clabels=cluster_info$clusters+1, csimilarity=cluster_similarity))
 }
 
 # for internal use
