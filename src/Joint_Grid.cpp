@@ -11,7 +11,7 @@ vector<vector<double> > Find_Grid(Cluster &clusters) {
     vector<vector<double> > lines_multi_dim(dims);
     vector<int> num_lines(dims);
     for (int i = 0; i < dims; ++i) {
-        vector<double> lines = Find_1D_Grid(clusters, i + 1);
+        vector<double> lines = Find_1D_Grid(clusters, i);
         lines_multi_dim[i] = lines;
         num_lines[i] = lines.size();
     }
@@ -23,15 +23,20 @@ vector<vector<double> > Find_Grid(Cluster &clusters) {
 }
 
 vector<double> Find_1D_Grid(Cluster &clusters, int dim_input) {
-    int dim = dim_input - 1;
+    int dim = dim_input;
     vector<int> order = clusters.sort_clusters(dim);
+    vector<double> lines(order.size(), ULONG_MAX);
+
+    if (order.size() == 0) {
+        return lines;
+    }
+
     vector<double> c1, c2;
     double mid_1, mid_2;
-    vector<double> lines(order.size(), ULONG_MAX);
     vector<double> overlap_lines;
     vector<double> err_sum;
     bool line_change = false;
-    for (size_t i = 0; i < int(order.size()) - 1; ++i) {
+    for (size_t i = 0; i + 1u < order.size(); ++i) {
         // extract two clusters on that dimension
         c1 = clusters.get_points(order[i])[dim];
         c2 = clusters.get_points(order[i + 1])[dim];
@@ -57,7 +62,7 @@ vector<double> Find_1D_Grid(Cluster &clusters, int dim_input) {
         }
 
         if (not overlap) {
-            lines[i]=(line);
+            lines[i] = line;
             line_change = true;
         } else if (overlap) {
             overlap_lines.push_back(line);
@@ -68,7 +73,7 @@ vector<double> Find_1D_Grid(Cluster &clusters, int dim_input) {
         //     cout << "line: " << overlap_lines[n] << " error sum: " << err_sum[n] << endl;
         // }
         auto posi = min_element(err_sum.begin(), err_sum.end());
-        lines[0]=(overlap_lines[posi - err_sum.begin()]);
+        lines[0] = (overlap_lines[posi - err_sum.begin()]);
         //cout << "Final line is: " << lines[0] << endl;
     }
     return lines;
@@ -87,6 +92,11 @@ vector<vector<double> > prep_index(vector<double> &c1, vector<double> &c2, doubl
     auto c2_r = upper_bound(c2.begin(), c2.end(), median_2);
     vector<double> c2_new(c2_l, c2_r);
 
+    if (c1_new.size() + c2_new.size() == 0) {
+        vector<vector<double> > mean_index = vector<vector<double> >(3, vector<double>(0, 0));
+        return mean_index;
+    }
+
     // merge them together
     vector<double>::iterator iter_c1 = c1_new.begin();
     vector<double>::iterator iter_c2 = c2_new.begin();
@@ -95,21 +105,25 @@ vector<vector<double> > prep_index(vector<double> &c1, vector<double> &c2, doubl
     vector<double>::iterator real_data = data_index[0].begin();
     vector<double>::iterator c1_index = data_index[1].begin();
     vector<double>::iterator c2_index = data_index[2].begin();
-    int prev_1 = distance(c1_l, c1.end());
+
+    int prev_1 = distance(c1_l, c1.end()) + 1;
     int prev_2 = distance(c2.begin(), c2_l);
+    int final_index_c1 = distance(c1_r, c1.end());
+    int final_index_c2 = distance(c2.begin(), c2_r - 1);
+
     for (; real_data != data_index[0].end(); *real_data++, *c1_index++, *c2_index++) {
 
         if (iter_c1 == c1_new.end()) {//c1 is empty, put c2
             *real_data = *iter_c2;
             iter_c2++;
             prev_2++;
-            prev_1 = distance(c1_r, c1.end());
+            prev_1 = final_index_c1;
 
         } else if (iter_c2 == c2_new.end()) {//c2 is empty, put c1
             *real_data = *iter_c1;
             prev_1--;
             iter_c1++;
-            prev_2 = distance(c2.begin(), c2_r - 1);
+            prev_2 = final_index_c2;
 
         } else if (*iter_c1 <= *iter_c2) {//put c1
             *real_data = *iter_c1;
@@ -128,50 +142,25 @@ vector<vector<double> > prep_index(vector<double> &c1, vector<double> &c2, doubl
         *c2_index = prev_2;
     }
 
-    if (data_index[0].size() == 0) {
-        vector<vector<double> > mean_index = vector<vector<double> >(3, vector<double>(0, 0));
-        return mean_index;
-    }
     vector<vector<double> > mean_index = vector<vector<double> >(3, vector<double>(data_index[0].size() - 1, 0));
 
-    for (int i = 0; i < int(data_index[0].size()) - 1; ++i) {
+    for (int i = 0; i + 1u < data_index[0].size(); ++i) {
         double mean = (data_index[0][i] + data_index[0][i + 1]) / 2.0;
-        int c1_index = data_index[1][i];
+        int c1_index = data_index[1][i + 1];
         int c2_index = data_index[2][i];
         mean_index[0][i] = mean;
         mean_index[1][i] = c1_index;
         mean_index[2][i] = c2_index;
     }
-
     return mean_index;
 }
 
 double binary_search_index(const vector<vector<double> > &c_index, const int left, const int right, const int size_c1,
                            const int size_c2, bool &overlap, vector<double> &err_sum) {
-//    int line_index = 0;
-//    int line_index_left = 0;
-//    int line_index_right = 0;
-//    double line = 0;
-//    int index_c1 = 0;
-//    int index_c2 = 0;
-//    bool even = false;
 
     if (right < left) {
         throw "VALUE ERROR!\nRight bound less than left bound!\n";
     }
-//    if ((right - left) % 2 == 0) {
-//        line_index = left + (right - left) / 2;
-//        index_c1 = c_index[1][line_index];
-//        index_c2 = c_index[2][line_index];
-//        line = c_index[0][line_index];
-//    } else if ((right - left) % 2 == 1) {
-//        line_index_left = left + (right - left) / 2;
-//        line_index_right = left + (right - left) / 2 + 1;
-//        index_c1 = c_index[1][line_index_right];
-//        index_c2 = c_index[2][line_index_left];
-//        line = (c_index[0][line_index_left] + c_index[0][line_index_right]) / 2.0;
-//        even = true;
-//    }
 
     int line_index = ceil(left + (right - left) / 2.0);
     int c1_index = c_index[1][line_index];

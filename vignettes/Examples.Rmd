@@ -59,7 +59,7 @@ plot.patterns <- function(x, y, z, res)
     tab, xlab="y discretized", ylab="z discretized",
     col=col, main="Discretized data", highlight="none", mar = mar) 
   
-  col <- "dodgerblue" # "royalblue"
+  col <- "dodgerblue"
   labelcol <- colorRampPalette(c("black", col))
   plot(x, z, main="Original data", col=labelcol(k)[res$clabels],
        pch=19, cex.axis=0.8, cex=0.7)
@@ -79,24 +79,22 @@ plot.patterns <- function(x, y, z, res)
 
 ```{r, out.width="40%", fig.show="hold", fig.cap="Example 1. Nonlinear curves using k-means clustering with a fixed number of clusters."}
 require(GridOnClusters)
-# using a specified k
 x = rnorm(50)
 y = sin(x)
 z = cos(x)
 data = cbind(x, y, z)
-res = discretize.jointly(data, k=3)
+res = discretize.jointly(data, k=3) # using a specified k
 plot.patterns(x, y, z, res)
 ```
 
 ## Example 2. Nonlinear curves and patterns using k-means clustering with a range for the number of clusters
 
 ```{r, out.width="40%", fig.show="hold", fig.cap="Example 2. Using a range for the number of k-means clusters"}
- # using a range of k
  x = rnorm(100)
  y = log1p(abs(x))
  z = ifelse(x >= -0.5 & x <= 0.5, 0, 1) + rnorm(100, 0, 0.1)
  data = cbind(x, y, z)
- res = discretize.jointly(data, k=c(2:3))
+ res = discretize.jointly(data, k=c(2:3)) # using a range of k
  plot.patterns(x, y, z, res)
 ```
 

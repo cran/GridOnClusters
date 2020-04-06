@@ -72,44 +72,44 @@ test_that("Testing discretize.jointly", {
   # test marginal levels
   expect_equivalent(length(unique(discr$D[,1])), 7)
   expect_equivalent(length(unique(discr$D[,2])), 7)
-  expect_equivalent(length(unique(discr$D[,3])), 3)
+  expect_equivalent(length(unique(discr$D[,3])), 4)
 
   # test marginal distribution
-  expect_equivalent(table(discr$D[,1]), as.table(c(17, 5, 13, 33, 6, 4, 22)))
-  expect_equivalent(table(discr$D[,2]), as.table(c(17, 6, 12, 33, 6, 4, 22)))
-  expect_equivalent(table(discr$D[,3]), as.table(c(5, 82, 13)))
+  expect_equivalent(table(discr$D[,1]), as.table(c(17, 6, 11, 34, 6, 4, 22)))
+  expect_equivalent(table(discr$D[,2]), as.table(c(17, 6, 11, 34, 6, 4, 22)))
+  expect_equivalent(table(discr$D[,3]), as.table(c(2, 3, 82, 13)))
 
   # test 2d joint distributions
   dim12 = table(discr$D[,1], discr$D[,2])
   expect_equivalent(dim12, as.table(matrix(c(17, 0, 0, 0, 0, 0, 0,
-                                             0, 5, 0, 0, 0, 0, 0,
-                                             0, 1, 12, 0, 0, 0, 0,
-                                             0, 0, 0, 33, 0, 0, 0,
+                                             0, 6, 0, 0, 0, 0, 0,
+                                             0, 0, 11, 0, 0, 0, 0,
+                                             0, 0, 0, 34, 0, 0, 0,
                                              0, 0, 0, 0, 6, 0, 0,
                                              0, 0, 0, 0, 0, 4, 0,
                                              0, 0, 0, 0, 0, 0, 22),
                                            nrow=7, ncol=7, byrow = T)))
   dim13 = table(discr$D[,1], discr$D[,3])
-  expect_equivalent(dim13, as.table(matrix(c(0, 16, 1,
-                                             0, 0, 5,
-                                             1, 12, 0,
-                                             0, 33, 0,
-                                             0, 0, 6,
-                                             4, 0, 0,
-                                             0, 21, 1),
-                                           nrow=7, ncol=3, byrow = T)))
+  expect_equivalent(dim13, as.table(matrix(c(0, 0, 16, 1,
+                                             1, 0, 0, 5,
+                                             0, 0, 11, 0,
+                                             0, 0, 34, 0,
+                                             0, 0, 0, 6,
+                                             1, 3, 0, 0,
+                                             0, 0, 21, 1),
+                                           nrow=7, ncol=4, byrow = T)))
   dim23 = table(discr$D[,2], discr$D[,3])
-  expect_equivalent(dim23, as.table(matrix(c(0, 16, 1,
-                                             1, 0, 5,
-                                             0, 12, 0,
-                                             0, 33, 0,
-                                             0, 0, 6,
-                                             4, 0, 0,
-                                             0, 21, 1),
-                                           nrow=7, ncol=3, byrow = T)))
+  expect_equivalent(dim23, as.table(matrix(c(0, 0, 16, 1,
+                                             1, 0, 0, 5,
+                                             0, 0, 11, 0,
+                                             0, 0, 34, 0,
+                                             0, 0, 0, 6,
+                                             1, 3, 0, 0,
+                                             0, 0, 21, 1),
+                                           nrow=7, ncol=4, byrow = T)))
 
   # test ARI score
-  expect_equivalent(round(discr$csimilarity, digits = 3), 0.948)
+  expect_equivalent(round(discr$csimilarity, digits = 3), 0.921)
 
 
   # test 3
@@ -131,29 +131,29 @@ test_that("Testing discretize.jointly", {
 
   # test marginal distribution
   expect_equivalent(table(discr$D[,1]), as.table(c(34, 12, 4)))
-  expect_equivalent(table(discr$D[,2]), as.table(c(28, 22)))
-  expect_equivalent(table(discr$D[,3]), as.table(c(14, 36)))
+  expect_equivalent(table(discr$D[,2]), as.table(c(21, 29)))
+  expect_equivalent(table(discr$D[,3]), as.table(c(9, 41)))
 
   # test 2d joint distributions
   dim12 = table(discr$D[,1], discr$D[,2])
-  expect_equivalent(dim12, as.table(matrix(c(19, 15,
-                                             6, 6,
-                                             3, 1),
-                                           nrow=3, ncol=2, byrow = T)))
-
-  dim13 = table(discr$D[,1], discr$D[,3])
-  expect_equivalent(dim13, as.table(matrix(c(6, 28,
+  expect_equivalent(dim12, as.table(matrix(c(13, 21,
                                              5, 7,
                                              3, 1),
                                            nrow=3, ncol=2, byrow = T)))
 
+  dim13 = table(discr$D[,1], discr$D[,3])
+  expect_equivalent(dim13, as.table(matrix(c(3, 31,
+                                             3, 9,
+                                             3, 1),
+                                           nrow=3, ncol=2, byrow = T)))
+
   dim23 = table(discr$D[,2], discr$D[,3])
-  expect_equivalent(dim23, as.table(matrix(c(5, 23,
-                                             9, 13),
+  expect_equivalent(dim23, as.table(matrix(c(3, 18,
+                                             6, 23),
                                            nrow=2, ncol=2, byrow = T)))
 
   # test ARI score
-  expect_equivalent(round(discr$csimilarity, digits = 3), 0.985)
+  expect_equivalent(round(discr$csimilarity, digits = 3), 0.992)
 
   # test 4
   # y = f(x)
@@ -177,34 +177,34 @@ test_that("Testing discretize.jointly", {
   expect_equivalent(length(unique(discr$D[,3])), 2)
 
   # test marginal distribution
-  expect_equivalent(table(discr$D[,1]), as.table(c(82, 197, 251, 294, 176)))
-  expect_equivalent(table(discr$D[,2]), as.table(c(323, 451, 226)))
+  expect_equivalent(table(discr$D[,1]), as.table(c(82, 197, 252, 293, 176)))
+  expect_equivalent(table(discr$D[,2]), as.table(c(321, 454, 225)))
   expect_equivalent(table(discr$D[,3]), as.table(c(472, 528)))
 
   # test 2d joint distributions
   dim12 = table(discr$D[,1], discr$D[,2])
   expect_equivalent(dim12, as.table(matrix(c(18, 59, 5,
-                                             0, 13, 184,
-                                             0, 251, 0,
-                                             293, 1, 0,
-                                             12, 127, 37),
+                                             0, 14, 183,
+                                             0, 252, 0,
+                                             292, 1, 0,
+                                             11, 128, 37),
                                            nrow=5, ncol=3, byrow = T)))
 
   dim13 = table(discr$D[,1], discr$D[,3])
   expect_equivalent(dim13, as.table(matrix(c(14, 68,
                                              165, 32,
-                                             0, 251,
-                                             265, 29,
+                                             0, 252,
+                                             265, 28,
                                              28, 148),
                                            nrow=5, ncol=2, byrow = T)))
 
   dim23 = table(discr$D[,2], discr$D[,3])
-  expect_equivalent(dim23, as.table(matrix(c(279, 44,
-                                             0, 451,
-                                             193, 33),
+  expect_equivalent(dim23, as.table(matrix(c(279, 42,
+                                             0, 454,
+                                             193, 32),
                                            nrow=3, ncol=2, byrow = T)))
 
   # test ARI score
-  expect_equivalent(round(discr$csimilarity, digits = 3), 0.913)
+  expect_equivalent(round(discr$csimilarity, digits = 3), 0.915)
 
 })

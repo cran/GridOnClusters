@@ -3,9 +3,9 @@
 # created by Sajal Kumar
 # Copyright (c) NMSU Song lab
 
-#' Discretize continuous multivariate data by a cluster-preserving grid
+#' Discretize Multivariate Continuous Data by a Cluster-Preserving Grid
 #'
-#' Discretize continuous multivariate data using a grid that captures the joint distribution via
+#' Discretize multivariate continuous data using a grid that captures the joint distribution via
 #' preserving clusters in the original data
 #'
 #' @importFrom cluster silhouette
@@ -32,7 +32,7 @@
 #'
 #' A list that contains four items:
 #' \item{\code{D}}{a matrix that contains the discretized version of the original \code{data}.
-#' The discretize values are one(1)-based.}
+#' Discretized values are one(1)-based.}
 #'
 #' \item{\code{grid}}{a list of vectors containing decision boundaries for each variable/dimension.}
 #'
@@ -42,21 +42,21 @@
 #' \code{D} and cluster labels \code{clabels}. The score is the adjusted Rand index.}
 #'
 #' @examples
-#' # using a specified \code{k}
+#' # using a specified k
 #' x = rnorm(100)
 #' y = sin(x)
 #' z = cos(x)
 #' data = cbind(x, y, z)
 #' discretized_data = discretize.jointly(data, k=5)$D
 #'
-#' # using a range of 'k'
+#' # using a range of k
 #' x = rnorm(1000)
 #' y = log1p(abs(x))
 #' z = tan(x)
 #' data = cbind(x, y, z)
 #' discretized_data = discretize.jointly(data, k=c(3:10))$D
 #'
-#' # using an alternate different clustering scheme
+#' # using an alternate clustering method to k-means
 #' library(cluster)
 #' x = rnorm(1000)
 #' y = log1p(abs(x))
@@ -69,7 +69,7 @@
 #'
 #' @seealso
 #'
-#' See [`Ckmeans.1d.dp::Ckmeans.1d.dp()`] for discretizing a single continuous variable.
+#' See \link[Ckmeans.1d.dp]{Ckmeans.1d.dp} for discretizing univariate continuous data.
 #'
 #' @export
 discretize.jointly = function(data, k=c(2:10), cluster_label=NULL){

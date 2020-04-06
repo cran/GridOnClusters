@@ -1,8 +1,8 @@
 Package: GridOnClusters
 Type: Package
 Title: Joint Discretization of Data on a Grid that Preserves Clusters
-Version: 0.0.6
-Date: 2020-03-26
+Version: 0.0.7
+Date: 2020-04-03
 Authors@R: 
     c(person(given = "Jiandong",
              family = "Wang",
@@ -22,7 +22,7 @@ Author: Jiandong Wang [aut],
   Sajal Kumar [aut] (<https://orcid.org/0000-0003-0930-1582>),
   Joe Song [aut, cre] (<https://orcid.org/0000-0002-6883-6547>)
 Maintainer: Joe Song <joemsong@cs.nmsu.edu>
-Description: Discretize continuous multivariate data using a grid
+Description: Discretize multivariate continuous data using a grid
     that captures the joint distribution via preserving clusters in
     the original data. Joint grid discretization is applicable as a
     data transformation step before using other methods to infer
@@ -39,6 +39,6 @@ LinkingTo: Rcpp
 RoxygenNote: 7.1.0
 NeedsCompilation: yes
 VignetteBuilder: knitr
-Packaged: 2020-03-27 02:45:40 UTC; joesong
+Packaged: 2020-04-04 05:58:10 UTC; joesong
 Repository: CRAN
-Date/Publication: 2020-03-28 01:10:02 UTC
+Date/Publication: 2020-04-06 12:42:11 UTC

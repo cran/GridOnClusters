@@ -5,6 +5,21 @@ output:
 ---
 # NEWS
 
+## Version 0.0.7
+  
+  2020-04-03
+  
+  1. Tidied up code for the Examples vignette.
+  2. Updated the manual of discrete.jointly() function.
+  3. Made minor editorial changes in DESCRIPTION and README.md.
+  4. Resolved signed/unsigned mismatches.
+
+  2020-03-31
+  
+  1. Created version 0.0.7 from 0.0.6.
+  2. Fixed memory leak in Clusters.cpp when calculating median.
+
+
 ## Version 0.0.6
 
   2020-03-26

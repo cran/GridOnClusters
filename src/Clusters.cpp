@@ -41,20 +41,18 @@ Cluster::Cluster(int k, vector<int> labels, vector<vector<double> > data) {
     this->cluster_medians = vector<vector<double> >(this->num_clusters, vector<double>(dims, 0));
     double mid = 0;
     double mid_index = 0;
-    vector<double> temp;
     for (int i = 0; i < this->num_clusters; ++i) {
         for (int j = 0; j < dims; ++j) {
-            temp = this->cluster_points[i][j];
+            vector<double> temp = this->cluster_points[i][j];
             sort(temp.begin(), temp.end());
             if (temp.size() % 2 == 0) {//mid_point is in between
                 mid_index = temp.size() / 2;
-                mid = (temp[mid_index] + temp[mid_index + 1]) / 2.0;
+                mid = (temp[mid_index] + temp[mid_index - 1]) / 2.0;
             } else {//mid_point is in data
                 mid_index = temp.size() / 2.0;
-                mid = temp[ceil(mid_index)];
+                mid = temp[floor(mid_index)];
             }
             this->cluster_medians[i][j] = mid;
-            temp.clear();
         }
     }
 }
@@ -112,14 +110,6 @@ vector<int> Cluster::sort_clusters(int dim) {
     // sort indexes based on comparing values in v
     sort(idx.begin(), idx.end(),
          [this, dim](size_t i1, size_t i2) { return this->cluster_medians[i1][dim] < this->cluster_medians[i2][dim]; });
-
-    // if (DEBUG == 1) {
-    //     vector<int>::iterator ite = idx.begin();
-    //     for (; ite != idx.end(); ite++) {
-    //         cout << *ite;
-    //     }
-    //     cout << endl;
-    // }
     return idx;
 }
 
