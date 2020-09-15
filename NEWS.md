@@ -5,6 +5,24 @@ output:
 ---
 # NEWS
 
+## Version 0.0.8
+  
+  2020-09-13
+  
+  1. Added function plotGOCpatterns to plot the continuous data along with the
+  cluster preserving grid.
+  2. Created a manual for the plotGOCpatterns() function.
+  3. Updated the code for the Examples vignette to use plotGOCpatterns.
+
+  2020-08-10
+  
+  1. Created version 0.0.8 from 0.0.7.
+  2. Added an additional parameter 'min_level' to denote the minimum number of 
+  discretization levels required for each dimension. 
+  3. Updated the manual of discrete.jointly() function.
+  4. Added an entry in reference and citation.
+  5. Updated README.md with badges.
+
 ## Version 0.0.7
   
   2020-04-03

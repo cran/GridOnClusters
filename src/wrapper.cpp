@@ -6,7 +6,7 @@
 #include "Clusters.h"
 
 // [[Rcpp::export]]
-Rcpp::List findgrid(Rcpp::List cluster_info, int k, int nobs, int ndims) {
+Rcpp::List findgrid(Rcpp::List cluster_info, int k, int nobs, int ndims, int bin_limit) {
 
   // obtain cluster centers
   // Rcpp::NumericMatrix centers = Rcpp::as<Rcpp::NumericMatrix>(cluster_info["centers"]);
@@ -40,7 +40,7 @@ Rcpp::List findgrid(Rcpp::List cluster_info, int k, int nobs, int ndims) {
   Cluster clust_obj(k, _labels, _data);
 
   // get grid lines
-  vector<vector<double> > _grid_lines = Find_Grid(clust_obj);
+  vector<vector<double> > _grid_lines = Find_Grid(clust_obj, bin_limit);
 
   // type cast it to List
   Rcpp::List lines(ndims);

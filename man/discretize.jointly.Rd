@@ -4,7 +4,7 @@
 \alias{discretize.jointly}
 \title{Discretize Multivariate Continuous Data by a Cluster-Preserving Grid}
 \usage{
-discretize.jointly(data, k = c(2:10), cluster_label = NULL)
+discretize.jointly(data, k = c(2:10), cluster_label = NULL, min_level = 2)
 }
 \arguments{
 \item{data}{a matrix containing two or more continuous variables.
@@ -18,6 +18,8 @@ If \code{cluster_label} is specified, \code{k} is ignored.}
 \item{cluster_label}{a vector of user-specified cluster labels for each observation
 in \code{data}. The user is free to choose any clustering.
 If unspecified, k-means clustering is used by default.}
+
+\item{min_level}{the minimum number of levels along each dimension}
 }
 \value{
 A list that contains four items:
@@ -34,6 +36,9 @@ Discretized values are one(1)-based.}
 \description{
 Discretize multivariate continuous data using a grid that captures the joint distribution via
 preserving clusters in the original data
+}
+\details{
+The function implements algorithms described in \insertCite{Jwang2020BCB}{GridOnClusters}.
 }
 \examples{
 # using a specified k
@@ -62,6 +67,12 @@ cluster_label = pam(x=data, diss = FALSE, metric = "euclidean", k = 5)$clusterin
 discretized_data = discretize.jointly(data, cluster_label = cluster_label)$D
 
 }
+\references{
+\insertAllCited{}
+}
 \seealso{
 See \link[Ckmeans.1d.dp]{Ckmeans.1d.dp} for discretizing univariate continuous data.
+}
+\author{
+Jiandong Wang, Sajal Kumar and Mingzhou Song
 }

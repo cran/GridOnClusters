@@ -1,6 +1,7 @@
 # discretize.jointly.R
 #
-# created by Sajal Kumar
+# Created by Sajal Kumar
+# Modified by Jiandong Wang
 # Copyright (c) NMSU Song lab
 
 #' Discretize Multivariate Continuous Data by a Cluster-Preserving Grid
@@ -13,6 +14,7 @@
 #' @importFrom fossil adj.rand.index
 #' @importFrom stats dist
 #' @importFrom dqrng dqsample
+#' @importFrom Rdpack reprompt
 #' @import Rcpp
 #' @useDynLib GridOnClusters
 #'
@@ -28,6 +30,13 @@
 #' in \code{data}. The user is free to choose any clustering.
 #' If unspecified, k-means clustering is used by default.
 #'
+#' @param min_level the minimum number of levels along each dimension 
+#'
+#' @details 
+#' 
+#' The function implements algorithms described in \insertCite{Jwang2020BCB}{GridOnClusters}.
+#' 
+#'
 #' @return
 #'
 #' A list that contains four items:
@@ -40,7 +49,7 @@
 #'
 #' \item{\code{csimilarity}}{a similarity score between clusters from joint discretization
 #' \code{D} and cluster labels \code{clabels}. The score is the adjusted Rand index.}
-#'
+#' 
 #' @examples
 #' # using a specified k
 #' x = rnorm(100)
@@ -67,12 +76,19 @@
 #' cluster_label = pam(x=data, diss = FALSE, metric = "euclidean", k = 5)$clustering
 #' discretized_data = discretize.jointly(data, cluster_label = cluster_label)$D
 #'
+#' @references
+#' \insertAllCited{}
+#' 
+#' @author 
+#' 
+#' Jiandong Wang, Sajal Kumar and Mingzhou Song
+#' 
 #' @seealso
 #'
 #' See \link[Ckmeans.1d.dp]{Ckmeans.1d.dp} for discretizing univariate continuous data.
 #'
 #' @export
-discretize.jointly = function(data, k=c(2:10), cluster_label=NULL){
+discretize.jointly = function(data, k=c(2:10), cluster_label=NULL, min_level = 2){
 
   # check if data provided is a matrix
   if( !("matrix" %in% class(data)) && !("data.frame" %in% class(data))){
@@ -98,6 +114,12 @@ discretize.jointly = function(data, k=c(2:10), cluster_label=NULL){
 
   if(!is.null(cluster_label) && !class(cluster_label) %in% c("numeric","integer")){
     stop("'cluster_label' should be either null or a numeric/integer vector.")
+  }
+  
+  # 'min_level' should smaller then the max of k
+  if(max(k)<min_level){
+    k = c(min_level,min_level+5)
+    warning("'min_level' should be in the range of k, k has been adapted")
   }
 
   # if no cluster labels are supplied, default to K-means
@@ -152,7 +174,7 @@ discretize.jointly = function(data, k=c(2:10), cluster_label=NULL){
   }
 
   # get grid lines
-  grid_lines = findgrid(cluster_info, length(unique(cluster_info$clusters)), nrow(data), ncol(data))
+  grid_lines = findgrid(cluster_info, length(unique(cluster_info$clusters)), nrow(data), ncol(data), min_level)
 
   # filter grid lines
   grid_lines = lapply(grid_lines, function(i){
@@ -176,21 +198,25 @@ discretize.jointly = function(data, k=c(2:10), cluster_label=NULL){
 # for internal use
 # takes n-dimesional 'data' and gridlines to quantify each dimension
 discretize_data = function(data, gridlines){
-
+  
   # use gridlines for each dimension
   for(i in 1:ncol(data)){
-
-    discr = rep(length(gridlines[[i]])+1, nrow(data))
-    gridlines[[i]] = sort(gridlines[[i]])
-    for(j in 1:length(gridlines[[i]])){ # determine discretization levels
-      if(j == 1) {
-        discr[data[,i] < gridlines[[i]][j]] = 1
-      } else {
-        discr[data[,i] < gridlines[[i]][j] & data[,i] >= gridlines[[i]][j-1]] = j
+    
+    if(length(unique(gridlines))==0){
+      discr = rep(1, nrow(data))
+    }else{
+      discr = rep(length(gridlines[[i]])+1, nrow(data))
+      gridlines[[i]] = sort(gridlines[[i]])
+      for(j in 1:length(gridlines[[i]])){ # determine discretization levels
+        if(j == 1) {
+          discr[data[,i] < gridlines[[i]][j]] = 1
+        } else {
+          discr[data[,i] < gridlines[[i]][j] & data[,i] >= gridlines[[i]][j-1]] = j
+        }
       }
     }
     data[,i] = discr
   }
-
+  
   return(data)
 }

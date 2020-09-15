@@ -6,12 +6,12 @@
 
 #include "Joint_Grid.h"
 
-vector<vector<double> > Find_Grid(Cluster &clusters) {
+vector<vector<double> > Find_Grid(Cluster &clusters, int min_bin_limit) {
     int dims = clusters.get_dims();
     vector<vector<double> > lines_multi_dim(dims);
     vector<int> num_lines(dims);
     for (int i = 0; i < dims; ++i) {
-        vector<double> lines = Find_1D_Grid(clusters, i);
+        vector<double> lines = Find_1D_Grid(clusters, i, min_bin_limit);
         lines_multi_dim[i] = lines;
         num_lines[i] = lines.size();
     }
@@ -22,7 +22,7 @@ vector<vector<double> > Find_Grid(Cluster &clusters) {
     return lines_multi_dim;
 }
 
-vector<double> Find_1D_Grid(Cluster &clusters, int dim_input) {
+vector<double> Find_1D_Grid(Cluster &clusters, int dim_input, int min_bin_limit) {
     int dim = dim_input;
     vector<int> order = clusters.sort_clusters(dim);
     vector<double> lines(order.size(), ULONG_MAX);
@@ -35,8 +35,10 @@ vector<double> Find_1D_Grid(Cluster &clusters, int dim_input) {
     double mid_1, mid_2;
     vector<double> overlap_lines;
     vector<double> err_sum;
-    bool line_change = false;
-    for (size_t i = 0; i + 1u < order.size(); ++i) {
+    auto iter_lines = lines.begin();
+    int num_bins = 1;
+    int num_overlaps = 0;
+    for (size_t i = 0; i + 1 < order.size(); ++i) {
         // extract two clusters on that dimension
         c1 = clusters.get_points(order[i])[dim];
         c2 = clusters.get_points(order[i + 1])[dim];
@@ -57,24 +59,34 @@ vector<double> Find_1D_Grid(Cluster &clusters, int dim_input) {
         if (c_index[0].size() == 0) {
             overlap = true;
             line = (mid_1 + mid_2) / 2.0;
+            err_sum.push_back(line);
         } else {
             line = binary_search_index(c_index, 0, c_index[0].size() - 1, len_c1, len_c2, overlap, err_sum);
         }
 
         if (not overlap) {
-            lines[i] = line;
-            line_change = true;
+            *iter_lines = line;
+            iter_lines++;
+            num_bins++;
         } else if (overlap) {
             overlap_lines.push_back(line);
+            num_overlaps++;
         }
     }
-    if (not line_change) {
-        // for (size_t n = 0; n < err_sum.size(); ++n) {
-        //     cout << "line: " << overlap_lines[n] << " error sum: " << err_sum[n] << endl;
-        // }
-        auto posi = min_element(err_sum.begin(), err_sum.end());
-        lines[0] = (overlap_lines[posi - err_sum.begin()]);
-        //cout << "Final line is: " << lines[0] << endl;
+    if (num_bins < min_bin_limit) {
+        vector<vector<double>> overlap_vec(num_overlaps, vector<double>(2));
+        for (int i = 0; i < num_overlaps; i++) {//初始化
+            overlap_vec[i][0] = err_sum[i];
+            overlap_vec[i][1] = overlap_lines[i];
+        }
+        sort(overlap_vec.begin(), overlap_vec.end());
+
+        for (auto iter_overlaps = overlap_vec.begin(); num_bins < min_bin_limit; num_bins++, iter_overlaps++) {
+            *iter_lines = (*iter_overlaps)[1];
+        }
+//        auto posi = min_element(err_sum.begin(), err_sum.end());
+//        lines[0] = (overlap_lines[posi - err_sum.begin()]);
+//        //cout << "Final line is: " << lines[0] << endl;
     }
     return lines;
 
@@ -144,7 +156,7 @@ vector<vector<double> > prep_index(vector<double> &c1, vector<double> &c2, doubl
 
     vector<vector<double> > mean_index = vector<vector<double> >(3, vector<double>(data_index[0].size() - 1, 0));
 
-    for (int i = 0; i + 1u < data_index[0].size(); ++i) {
+    for (int i = 0; i < int(data_index[0].size()) - 1; ++i) {
         double mean = (data_index[0][i] + data_index[0][i + 1]) / 2.0;
         int c1_index = data_index[1][i + 1];
         int c2_index = data_index[2][i];

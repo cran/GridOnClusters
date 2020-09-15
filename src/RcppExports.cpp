@@ -6,8 +6,8 @@
 using namespace Rcpp;
 
 // findgrid
-Rcpp::List findgrid(Rcpp::List cluster_info, int k, int nobs, int ndims);
-RcppExport SEXP _GridOnClusters_findgrid(SEXP cluster_infoSEXP, SEXP kSEXP, SEXP nobsSEXP, SEXP ndimsSEXP) {
+Rcpp::List findgrid(Rcpp::List cluster_info, int k, int nobs, int ndims, int bin_limit);
+RcppExport SEXP _GridOnClusters_findgrid(SEXP cluster_infoSEXP, SEXP kSEXP, SEXP nobsSEXP, SEXP ndimsSEXP, SEXP bin_limitSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -15,13 +15,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type k(kSEXP);
     Rcpp::traits::input_parameter< int >::type nobs(nobsSEXP);
     Rcpp::traits::input_parameter< int >::type ndims(ndimsSEXP);
-    rcpp_result_gen = Rcpp::wrap(findgrid(cluster_info, k, nobs, ndims));
+    Rcpp::traits::input_parameter< int >::type bin_limit(bin_limitSEXP);
+    rcpp_result_gen = Rcpp::wrap(findgrid(cluster_info, k, nobs, ndims, bin_limit));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_GridOnClusters_findgrid", (DL_FUNC) &_GridOnClusters_findgrid, 4},
+    {"_GridOnClusters_findgrid", (DL_FUNC) &_GridOnClusters_findgrid, 5},
     {NULL, NULL, 0}
 };
 

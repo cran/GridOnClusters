@@ -1,7 +1,7 @@
 ---
 title: "Examples of joint grid discretization"
 author: "Jiandong Wang, Sajal Kumar, and Joe Song"
-date: "Updated: 2020-03-26; Created: 2020-03-17"
+date: "Updated: 2020-09-13; 2020-08-01; Created: 2020-03-17"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Examples of joint grid discretization}
@@ -16,65 +16,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-We show examples of jointly discretizing continuous data based on grids that preserve clusters in the original data.
-
-## A helper visualization function `plot.patterns()`
-
-Below is a helper function `plot.patterns` to visualize a three-dimensional grid on a three-variable data set. It shows scatter plots of each dimension with the clusters identified on the continuous data and the corresponding contingency table after grid discretization. We will use it to show the grid obtained on three examples next.
-
-```{r, collapse=TRUE}
-# Package `FunChisq' must have been installed.
-
-plot.patterns <- function(x, y, z, res)
-{
-  k = length(unique(res$clabels))
-  mar = c(2.5,3,4,1)
-  par(mar=mar, mgp=c(3,1,0)-c(1.5,0.5,0), lwd=2)
-  
-  col <- "limegreen"
-  labelcol <- colorRampPalette(c("black", col))
-  plot(x, y, main="Original data", col=labelcol(k)[res$clabels], 
-       pch=19, cex.axis=0.8, cex=0.7)
-  abline(v=res$grid[[1]], h=res$grid[[2]], col="black", lty="dotted")
-  tab <- as.matrix(table(-res$D[, 2], res$D[, 1]))
-  par(xpd=TRUE)
-  legend("top", legend = c(min(res$clabels):max(res$clabels)), pch=19,
-         col = labelcol(k), bty = "n", horiz = TRUE, inset = c(0,-0.2))
-  par(xpd=FALSE)
-  FunChisq::plot_table(
-    tab, xlab="x discretized", ylab="y discretized",
-    col=col, main="Discretized data", highlight="none", mar = mar)
-  
-  col <- "brown3"
-  labelcol <- colorRampPalette(c("black", col))
-  plot(y, z, main="Original data", col=labelcol(k)[res$clabels], 
-       pch=19, cex.axis=0.8, cex=0.7)
-  abline(v=res$grid[[2]], h=res$grid[[3]], col="black", lty="dotted")
-  tab <- as.matrix(table(-res$D[, 3], res$D[, 2]))
-  par(xpd=TRUE)
-  legend("top", legend = c(min(res$clabels):max(res$clabels)), pch=19, 
-         col = labelcol(k), bty = "n", horiz = TRUE, inset = c(0,-0.2))
-  par(xpd=FALSE)
-  FunChisq::plot_table(
-    tab, xlab="y discretized", ylab="z discretized",
-    col=col, main="Discretized data", highlight="none", mar = mar) 
-  
-  col <- "dodgerblue"
-  labelcol <- colorRampPalette(c("black", col))
-  plot(x, z, main="Original data", col=labelcol(k)[res$clabels],
-       pch=19, cex.axis=0.8, cex=0.7)
-  abline(v=res$grid[[1]], h=res$grid[[3]], col="black", lty="dotted")
-  tab <- as.matrix(table(-res$D[, 3], res$D[, 1]))
-  par(xpd=TRUE)
-  legend("top", legend = c(min(res$clabels):max(res$clabels)), pch=19,
-         col = labelcol(k), bty = "n", horiz = TRUE, inset = c(0,-0.2))
-  par(xpd=FALSE)
-  FunChisq::plot_table(
-    tab, xlab="x discretized", ylab="z discretized",
-    col=col, main="Discretized data", highlight="none", mar = mar) 
-}
-```
-
 ## Example 1. Nonlinear curves using k-means clustering with a fixed number of clusters
 
 ```{r, out.width="40%", fig.show="hold", fig.cap="Example 1. Nonlinear curves using k-means clustering with a fixed number of clusters."}
@@ -84,7 +25,7 @@ y = sin(x)
 z = cos(x)
 data = cbind(x, y, z)
 res = discretize.jointly(data, k=3) # using a specified k
-plot.patterns(x, y, z, res)
+plotGOCpatterns(data, res)
 ```
 
 ## Example 2. Nonlinear curves and patterns using k-means clustering with a range for the number of clusters
@@ -95,7 +36,7 @@ plot.patterns(x, y, z, res)
  z = ifelse(x >= -0.5 & x <= 0.5, 0, 1) + rnorm(100, 0, 0.1)
  data = cbind(x, y, z)
  res = discretize.jointly(data, k=c(2:3)) # using a range of k
- plot.patterns(x, y, z, res)
+ plotGOCpatterns(data, res)
 ```
 
 ## Example 3. Using the partition around medoids clustering method
@@ -110,6 +51,6 @@ plot.patterns(x, y, z, res)
  # pre-cluster the data using partition around medoids (PAM)
  cluster_label = cluster::pam(x=data, diss = FALSE, metric = "euclidean", k = 4)$clustering
  res = discretize.jointly(data, cluster_label = cluster_label)
- plot.patterns(x, y, z, res)
+ plotGOCpatterns(data, res)
 ```
 
