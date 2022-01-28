@@ -40,7 +40,7 @@ Cluster::Cluster(int k, vector<int> labels, vector<vector<double> > data) {
     //calculate median
     this->cluster_medians = vector<vector<double> >(this->num_clusters, vector<double>(dims, 0));
     double mid = 0;
-    double mid_index = 0;
+    float mid_index = 0;
     for (int i = 0; i < this->num_clusters; ++i) {
         for (int j = 0; j < dims; ++j) {
             vector<double> temp = this->cluster_points[i][j];

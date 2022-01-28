@@ -13,7 +13,6 @@
 #include <algorithm>
 #include <string>
 #include <numeric>
-#include <assert.h>
 #include <math.h>
 
 

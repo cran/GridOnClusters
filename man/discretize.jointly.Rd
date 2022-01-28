@@ -4,22 +4,54 @@
 \alias{discretize.jointly}
 \title{Discretize Multivariate Continuous Data by a Cluster-Preserving Grid}
 \usage{
-discretize.jointly(data, k = c(2:10), cluster_label = NULL, min_level = 2)
+discretize.jointly(
+  data,
+  k = c(2:10),
+  min_level = 1,
+  cluster_method = c("Ball+BIC", "kmeans+silhouette", "PAM"),
+  grid_method = c("Sort+split", "MultiChannel.WUC"),
+  cluster_label = NULL
+)
 }
 \arguments{
 \item{data}{a matrix containing two or more continuous variables.
 Columns are variables, rows are observations.}
 
-\item{k}{either the number or range of clusters to be found on \code{data}.
-The default is 2 to 10 clusters. If a range is specified, an optimal k in
-the range is chosen to maximize the average silhouette width.
-If \code{cluster_label} is specified, \code{k} is ignored.}
+\item{k}{either an integer, a vector of integers, or \code{Inf}, specifying 
+different ways to find clusters in \code{data}. The default is a vector 
+containing integers from 2 to 10. If 'k' is a single number, \code{data} will 
+be grouped into into exactly 'k' clusters. If 'k' is an integer vector, an 
+optimal 'k' is chosen from among the integers, that maximizes the average 
+silhouette width. If 'k' is set to \code{Inf}, an optimal k is chosen among
+2 to \code{nrow(data)}. If \code{cluster_label} is specified, \code{k} is 
+ignored.}
+
+\item{min_level}{integer or vector, signifying the minimum number of levels 
+along each dimension. If a vector of size \code{ncol(data)}, then each element
+will be mapped 1:1 to each dimension in order. If an integer, then all dimensions
+will have the same minimum number of levels.}
+
+\item{cluster_method}{the clustering method to be used. Ignored if cluster labels 
+are given
+"kmeans+silhouette" will use k-means to cluster \code{data} and the average 
+Silhouette score to select the number of clusters k.
+"Ball+BIC" will use Mclust (modelNames = "VII") to cluster \code{data} and 
+BIC score to select the number of cluster k.}
+
+\item{grid_method}{the discretization method to be used. 
+"Sort+split" will sort the cluster by cluster mean in each dimension and then
+ split consecutive pairs only if the sum of the error rate of each cluster is
+ less than or equal to 50%. It is possible that no grid line will be added
+ in a certain dimension. The maximum number of lines is the number of 
+ clusters minus one.
+ "MultiChannel.WUC" will split each dimension by weighted with-in cluster
+ sum of squared distances by "Ckmeans.1d.dp::MultiChannel.WUC". Applied in 
+ each projection on each dimension. The channel of each point is defined by 
+ its multivariate cluster label.}
 
 \item{cluster_label}{a vector of user-specified cluster labels for each observation
 in \code{data}. The user is free to choose any clustering.
 If unspecified, k-means clustering is used by default.}
-
-\item{min_level}{the minimum number of levels along each dimension}
 }
 \value{
 A list that contains four items:
@@ -49,15 +81,26 @@ data = cbind(x, y, z)
 discretized_data = discretize.jointly(data, k=5)$D
 
 # using a range of k
-x = rnorm(1000)
+x = rnorm(100)
 y = log1p(abs(x))
 z = tan(x)
 data = cbind(x, y, z)
 discretized_data = discretize.jointly(data, k=c(3:10))$D
 
+# using k = Inf
+x = c()
+y = c()
+mns = seq(0,1200,100)
+for(i in 1:12){
+  x = c(x,runif(n=20, min=mns[i], max=mns[i]+20))
+  y = c(y,runif(n=20, min=mns[i], max=mns[i]+20))
+}
+data = cbind(x, y)
+discretized_data = discretize.jointly(data, k=Inf)$D
+
 # using an alternate clustering method to k-means
 library(cluster)
-x = rnorm(1000)
+x = rnorm(100)
 y = log1p(abs(x))
 z = sin(x)
 data = cbind(x, y, z)

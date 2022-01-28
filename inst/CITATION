@@ -7,16 +7,17 @@ bibentry(bibtype="inproceedings",
   author = c(person("Jiandong", "Wang"),
              person("Sajal", "Kumar"),  
              person("Mingzhou", "Song")),
-  note = "In press"
+  articleno = "57",
+  doi = "10.1145/3388440.3412415"
 )
 
 bibentry(bibtype="manual",
   key = "jwangGOC2020",
   title = "GridOnClusters: Joint Discretization of Data on a Grid that Preserves Clusters",
-  year = "2020",
+  year = "2022",
   author = c(person("Jiandong", "Wang"),
              person("Sajal", "Kumar"),  
              person("Mingzhou", "Song")),
-  note = "R package version 0.0.8",
+  note = "R package version 0.1.0",
   url = "https://CRAN.R-project.org/package=GridOnClusters"
 )

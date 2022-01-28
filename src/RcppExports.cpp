@@ -5,17 +5,22 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // findgrid
-Rcpp::List findgrid(Rcpp::List cluster_info, int k, int nobs, int ndims, int bin_limit);
+Rcpp::List findgrid(const Rcpp::List cluster_info, int k, int nobs, int ndims, const Rcpp::IntegerVector& bin_limit);
 RcppExport SEXP _GridOnClusters_findgrid(SEXP cluster_infoSEXP, SEXP kSEXP, SEXP nobsSEXP, SEXP ndimsSEXP, SEXP bin_limitSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::List >::type cluster_info(cluster_infoSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::List >::type cluster_info(cluster_infoSEXP);
     Rcpp::traits::input_parameter< int >::type k(kSEXP);
     Rcpp::traits::input_parameter< int >::type nobs(nobsSEXP);
     Rcpp::traits::input_parameter< int >::type ndims(ndimsSEXP);
-    Rcpp::traits::input_parameter< int >::type bin_limit(bin_limitSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type bin_limit(bin_limitSEXP);
     rcpp_result_gen = Rcpp::wrap(findgrid(cluster_info, k, nobs, ndims, bin_limit));
     return rcpp_result_gen;
 END_RCPP

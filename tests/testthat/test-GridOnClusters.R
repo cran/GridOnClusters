@@ -12,19 +12,22 @@ library(dqrng)
 
 context("Testing GridOnClusters")
 
-test_that("Testing discretize.jointly", {
+test_that("Testing discretize.jointly (\"kmeans+silhouette\")", {
 
   # test 1
   # y = f(x)
   # z = f(x)
   # k = constant
 
+  cluster_method <- "kmeans+silhouette"
+  
   dqset.seed(123)
   x = dqrnorm(100, mean=5, sd=1)
   y = sin(x)
   z = cos(x)
   data = cbind(x, y, z)
-  discr = discretize.jointly(data, k=3)
+  discr = discretize.jointly(
+     data, k=3, cluster_method=cluster_method)
 
   # test marginal levels
   expect_equivalent(length(unique(discr$D[,1])), 3)
@@ -67,7 +70,8 @@ test_that("Testing discretize.jointly", {
   y = log(x)
   z = tan(x)
   data = cbind(x, y, z)
-  discr = discretize.jointly(data, k=c(3:10))
+  discr = discretize.jointly(data, k=c(3:10), 
+                             cluster_method=cluster_method)
 
   # test marginal levels
   expect_equivalent(length(unique(discr$D[,1])), 7)
@@ -122,7 +126,9 @@ test_that("Testing discretize.jointly", {
   y = dqrnorm(50, mean=2, sd=0.5)
   z = sin(x) + cos(y)
   data = cbind(x, y, z)
-  discr = discretize.jointly(data, k=c(3:10))
+  discr = discretize.jointly(
+     data, k=c(3:10), min_level = 2, 
+     cluster_method=cluster_method)
 
   # test marginal levels
   expect_equivalent(length(unique(discr$D[,1])), 3)

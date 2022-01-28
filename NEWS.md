@@ -1,20 +1,68 @@
 ---
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 # NEWS
 
+## Version 0.1.0
+
+   2022-01-25
+   
+  1.  When cluster_method = "Ball+BIC", if Mclust discretization was unsuccessful, discretize.jointly will now add jitter noise (of increasing 'amount') to 'data'.
+  
+  2022-01-18
+  
+  1. Updated CITATION, REFERENDCES.bib, and README.md.
+
+
+   2022-01-17
+      
+  1. Fixed a bug in computing weights for MultiChannel.WUC when cluster IDs are not consecutive numbers after Ball clustering by Mclust (descrtize_jointly.R:198-204)
+  2. Fixed function cluster(data, k, method) where the method was not included into the return object.
+  3. Examples in the vignettes have been updated.
+
+
+   2022-01-11
+  
+  1. Added k=Inf option, that incrementally increases the number of clusters to
+  choose until either an increment is not required or each data point is
+  its own cluster.
+  2. Added an example showing the use of k=Inf option.
+
+  
+   2021-10-26
+  
+  1.  Added an additional parameter 'cluster_method', could be "Ball+BIC",
+  "kmeans+silhouette" or "PAM",
+  2. Added clustering method Mclust
+  3. Changed the default cluster method from Kmeans to Mclust, which is "Ball+BIC"
+  4. Added an additional parameter 'grid_method', could be "Sort+split" or 
+  "MultiChannel.WUC", "MultiChannel.WUC" is a discretize method Multichannel.MUC
+  from Ckmeans.1d.dp. The default option is still "Sort+split" which is the 
+  same as previous version. As the "MultiChannel.WUC" option is experimental, it is not recommended.
+  5. Added general plotting function plot(), old plot function still available
+  6. Changed the default value of min_level from 2 to 1. We expanded min_level argument
+  to provide a vector of integers specifying the minimum level for each dimension.
+  
+## Version 0.0.8.1
+  
+   2021-10-06
+
+  1. Removed the requirement for the number of points in the data
+
 ## Version 0.0.8
   
-  2020-09-13
+  
+   2020-09-13
   
   1. Added function plotGOCpatterns to plot the continuous data along with the
   cluster preserving grid.
   2. Created a manual for the plotGOCpatterns() function.
   3. Updated the code for the Examples vignette to use plotGOCpatterns.
 
-  2020-08-10
+  
+   2020-08-10
   
   1. Created version 0.0.8 from 0.0.7.
   2. Added an additional parameter 'min_level' to denote the minimum number of 
@@ -25,22 +73,24 @@ output:
 
 ## Version 0.0.7
   
-  2020-04-03
+  
+   2020-04-03
   
   1. Tidied up code for the Examples vignette.
   2. Updated the manual of discrete.jointly() function.
   3. Made minor editorial changes in DESCRIPTION and README.md.
   4. Resolved signed/unsigned mismatches.
 
-  2020-03-31
+  
+   2020-03-31
   
   1. Created version 0.0.7 from 0.0.6.
   2. Fixed memory leak in Clusters.cpp when calculating median.
 
 
 ## Version 0.0.6
-
-  2020-03-26
+  
+   2020-03-26
   
   1. Created version 0.0.6 from 0.0.5.
   2. Rewrote Prep_Index() to work in between two consecutive points, 
@@ -53,7 +103,8 @@ output:
 
 ## Version 0.0.5 (not released to the public)
 
-  2020-03-25
+  
+   2020-03-25
   
   1. Fixed a bug in the prep_index() function.
   2. Fixed prep_index() (lines 120 and 125) such that grid lines are
@@ -61,7 +112,8 @@ output:
   one of the points.
   3. Updated vignette. Example 2 seems always correct now.
   
-  2020-03-24
+  
+   2020-03-24
 
   1. Created version 0.0.5 from 0.0.4.
   2. Function discretize.jointly() now returns cluster labels of each
@@ -77,14 +129,14 @@ output:
 
 ## Version 0.0.4 (not released to the public)
 
-  2020-03-20
+   2020-03-20
   
   1. Created version 0.0.4 from 0.0.3.
   2. Fixed typos in DESCRIPTION and README files.
 
 ## Version 0.0.3
 
-  2020-03-17
+   2020-03-17
   
   1. Created version 0.0.3 from 0.0.2. Package renamed to GridOnClusters
   2. Function joint.grid.discretize.R() renamed to discretize.jointly()
@@ -97,12 +149,12 @@ output:
   
 ## Version 0.0.2 (not released to the public)
 
-  2020-03-14
+   2020-03-14
   
   1. Created the initial version 0.0.1. Package renamed to QNJGD
 
 ## Version 0.0.1 (not released to the public)
 
-  2020-03-09
+   2020-03-09
   
   1. Created the initial version 0.0.1. Package named JointGridDiscr

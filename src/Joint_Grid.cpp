@@ -6,7 +6,7 @@
 
 #include "Joint_Grid.h"
 
-vector<vector<double> > Find_Grid(Cluster &clusters, int min_bin_limit) {
+vector<vector<double> > Find_Grid(Cluster &clusters, vector<int> min_bin_limit) {
     int dims = clusters.get_dims();
     vector<vector<double> > lines_multi_dim(dims);
     vector<int> num_lines(dims);
@@ -22,8 +22,8 @@ vector<vector<double> > Find_Grid(Cluster &clusters, int min_bin_limit) {
     return lines_multi_dim;
 }
 
-vector<double> Find_1D_Grid(Cluster &clusters, int dim_input, int min_bin_limit) {
-    int dim = dim_input;
+vector<double> Find_1D_Grid(Cluster &clusters, int dim_input, vector<int> min_bin_limit) {
+    int dim = dim_input;// the current dimension, starting from 0
     vector<int> order = clusters.sort_clusters(dim);
     vector<double> lines(order.size(), ULONG_MAX);
 
@@ -73,7 +73,7 @@ vector<double> Find_1D_Grid(Cluster &clusters, int dim_input, int min_bin_limit)
             num_overlaps++;
         }
     }
-    if (num_bins < min_bin_limit) {
+    if (num_bins < min_bin_limit[dim]) {
         vector<vector<double>> overlap_vec(num_overlaps, vector<double>(2));
         for (int i = 0; i < num_overlaps; i++) {//初始化
             overlap_vec[i][0] = err_sum[i];
@@ -81,7 +81,7 @@ vector<double> Find_1D_Grid(Cluster &clusters, int dim_input, int min_bin_limit)
         }
         sort(overlap_vec.begin(), overlap_vec.end());
 
-        for (auto iter_overlaps = overlap_vec.begin(); num_bins < min_bin_limit; num_bins++, iter_overlaps++) {
+        for (auto iter_overlaps = overlap_vec.begin(); num_bins < min_bin_limit[dim]; num_bins++, iter_overlaps++) {
             *iter_lines = (*iter_overlaps)[1];
         }
 //        auto posi = min_element(err_sum.begin(), err_sum.end());
@@ -89,7 +89,6 @@ vector<double> Find_1D_Grid(Cluster &clusters, int dim_input, int min_bin_limit)
 //        //cout << "Final line is: " << lines[0] << endl;
     }
     return lines;
-
 }
 
 vector<vector<double> > prep_index(vector<double> &c1, vector<double> &c2, double median_1, double median_2) {
@@ -98,11 +97,11 @@ vector<vector<double> > prep_index(vector<double> &c1, vector<double> &c2, doubl
     sort(c2.begin(), c2.end());
     auto c1_l = lower_bound(c1.begin(), c1.end(), median_1);
     auto c1_r = upper_bound(c1.begin(), c1.end(), median_2);
-    vector<double> c1_new(c1_l, c1_r);
+    vector<double> c1_new(c1_l, c1_r);// part of clsuter 1 in between median_1 and median_2
 
     auto c2_l = lower_bound(c2.begin(), c2.end(), median_1);
     auto c2_r = upper_bound(c2.begin(), c2.end(), median_2);
-    vector<double> c2_new(c2_l, c2_r);
+    vector<double> c2_new(c2_l, c2_r);// part of clsuter 2 in between median_1 and median_2
 
     if (c1_new.size() + c2_new.size() == 0) {
         vector<vector<double> > mean_index = vector<vector<double> >(3, vector<double>(0, 0));
@@ -174,7 +173,7 @@ double binary_search_index(const vector<vector<double> > &c_index, const int lef
         throw "VALUE ERROR!\nRight bound less than left bound!\n";
     }
 
-    int line_index = ceil(left + (right - left) / 2.0);
+    int line_index = ceil(float (left + (right - left) / 2.0));
     int c1_index = c_index[1][line_index];
     int c2_index = c_index[2][line_index];
     double e_rate_c1 = c1_index / float(size_c1);
