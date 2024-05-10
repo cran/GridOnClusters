@@ -1,8 +1,8 @@
 Package: GridOnClusters
 Type: Package
 Title: Cluster-Preserving Multivariate Joint Grid Discretization
-Version: 0.1.0
-Date: 2022-01-27
+Version: 0.1.0.1
+Date: 2024-05-10
 Authors@R: 
     c(person(given = "Jiandong",
              family = "Wang",
@@ -30,14 +30,15 @@ Description: Discretize multivariate continuous data using a grid
  causality.
 Imports: Rcpp, Ckmeans.1d.dp, cluster, fossil, dqrng, mclust, Rdpack,
         plotrix
-Suggests: FunChisq, knitr, testthat (>= 2.1.0), rmarkdown
+Suggests: FunChisq, knitr, testthat (>= 3.0.0), rmarkdown
 RdMacros: Rdpack
 License: LGPL (>= 3)
 Encoding: UTF-8
 LinkingTo: Rcpp
-RoxygenNote: 7.1.2
+RoxygenNote: 7.3.1
 NeedsCompilation: yes
+Config/testthat/edition: 3
 VignetteBuilder: knitr
-Packaged: 2022-01-28 05:21:36 UTC; joesong
+Packaged: 2024-05-10 15:29:09 UTC; joesong
 Repository: CRAN
-Date/Publication: 2022-01-28 05:40:02 UTC
+Date/Publication: 2024-05-10 16:13:11 UTC

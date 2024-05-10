@@ -10,7 +10,7 @@ library(GridOnClusters)
 library(cluster)
 library(dqrng)
 
-context("Testing GridOnClusters")
+# context("Testing GridOnClusters")
 
 test_that("Testing discretize.jointly (\"kmeans+silhouette\")", {
 
@@ -21,6 +21,7 @@ test_that("Testing discretize.jointly (\"kmeans+silhouette\")", {
 
   cluster_method <- "kmeans+silhouette"
   
+  dqRNGkind("xoroshiro128+")
   dqset.seed(123)
   x = dqrnorm(100, mean=5, sd=1)
   y = sin(x)
@@ -30,40 +31,41 @@ test_that("Testing discretize.jointly (\"kmeans+silhouette\")", {
      data, k=3, cluster_method=cluster_method)
 
   # test marginal levels
-  expect_equivalent(length(unique(discr$D[,1])), 3)
-  expect_equivalent(length(unique(discr$D[,2])), 2)
-  expect_equivalent(length(unique(discr$D[,3])), 2)
+  expect_equal(ignore_attr = TRUE, length(unique(discr$D[,1])), 3)
+  expect_equal(ignore_attr = TRUE, length(unique(discr$D[,2])), 2)
+  expect_equal(ignore_attr = TRUE, length(unique(discr$D[,3])), 2)
 
   # test marginal distribution
-  expect_equivalent(table(discr$D[,1]), as.table(c(39, 43, 18)))
-  expect_equivalent(table(discr$D[,2]), as.table(c(79, 21)))
-  expect_equivalent(table(discr$D[,3]), as.table(c(39, 61)))
+  expect_equal(ignore_attr = TRUE, table(discr$D[,1]), as.table(c(39, 43, 18)))
+  expect_equal(ignore_attr = TRUE, table(discr$D[,2]), as.table(c(79, 21)))
+  expect_equal(ignore_attr = TRUE, table(discr$D[,3]), as.table(c(39, 61)))
 
   # test 2d joint distributions
   dim12 = table(discr$D[,1], discr$D[,2])
-  expect_equivalent(dim12, as.table(matrix(c(36, 3,
+  expect_equal(ignore_attr = TRUE, dim12, as.table(matrix(c(36, 3,
                                              43, 0,
                                              0, 18),
                                            nrow=3, ncol=2, byrow = T)))
 
   dim13 = table(discr$D[,1], discr$D[,3])
-  expect_equivalent(dim13, as.table(matrix(c(39, 0,
+  expect_equal(ignore_attr = TRUE, dim13, as.table(matrix(c(39, 0,
                                              0, 43,
                                              0, 18),
                                            nrow=3, ncol=2, byrow = T)))
 
   dim23 = table(discr$D[,2], discr$D[,3])
-  expect_equivalent(dim23, as.table(matrix(c(36, 43,
+  expect_equal(ignore_attr = TRUE, dim23, as.table(matrix(c(36, 43,
                                              3, 18),
                                            nrow=2, ncol=2, byrow = T)))
 
   # test ARI score
-  expect_equivalent(round(discr$csimilarity, digits = 3), 1)
+  expect_equal(ignore_attr = TRUE, round(discr$csimilarity, digits = 3), 1)
 
   # test 2
   # y = f(x)
   # z = f(x)
   # k = variable (determined by silhouette)
+  dqRNGkind("xoroshiro128+")
   dqset.seed(321)
 
   x = dqrnorm(n = 100, mean=10, sd=2)
@@ -74,18 +76,18 @@ test_that("Testing discretize.jointly (\"kmeans+silhouette\")", {
                              cluster_method=cluster_method)
 
   # test marginal levels
-  expect_equivalent(length(unique(discr$D[,1])), 7)
-  expect_equivalent(length(unique(discr$D[,2])), 7)
-  expect_equivalent(length(unique(discr$D[,3])), 4)
+  expect_equal(ignore_attr = TRUE, length(unique(discr$D[,1])), 7)
+  expect_equal(ignore_attr = TRUE, length(unique(discr$D[,2])), 7)
+  expect_equal(ignore_attr = TRUE, length(unique(discr$D[,3])), 4)
 
   # test marginal distribution
-  expect_equivalent(table(discr$D[,1]), as.table(c(17, 6, 11, 34, 6, 4, 22)))
-  expect_equivalent(table(discr$D[,2]), as.table(c(17, 6, 11, 34, 6, 4, 22)))
-  expect_equivalent(table(discr$D[,3]), as.table(c(2, 3, 82, 13)))
+  expect_equal(ignore_attr = TRUE, table(discr$D[,1]), as.table(c(17, 6, 11, 34, 6, 4, 22)))
+  expect_equal(ignore_attr = TRUE, table(discr$D[,2]), as.table(c(17, 6, 11, 34, 6, 4, 22)))
+  expect_equal(ignore_attr = TRUE, table(discr$D[,3]), as.table(c(2, 3, 82, 13)))
 
   # test 2d joint distributions
   dim12 = table(discr$D[,1], discr$D[,2])
-  expect_equivalent(dim12, as.table(matrix(c(17, 0, 0, 0, 0, 0, 0,
+  expect_equal(ignore_attr = TRUE, dim12, as.table(matrix(c(17, 0, 0, 0, 0, 0, 0,
                                              0, 6, 0, 0, 0, 0, 0,
                                              0, 0, 11, 0, 0, 0, 0,
                                              0, 0, 0, 34, 0, 0, 0,
@@ -94,7 +96,7 @@ test_that("Testing discretize.jointly (\"kmeans+silhouette\")", {
                                              0, 0, 0, 0, 0, 0, 22),
                                            nrow=7, ncol=7, byrow = T)))
   dim13 = table(discr$D[,1], discr$D[,3])
-  expect_equivalent(dim13, as.table(matrix(c(0, 0, 16, 1,
+  expect_equal(ignore_attr = TRUE, dim13, as.table(matrix(c(0, 0, 16, 1,
                                              1, 0, 0, 5,
                                              0, 0, 11, 0,
                                              0, 0, 34, 0,
@@ -103,7 +105,7 @@ test_that("Testing discretize.jointly (\"kmeans+silhouette\")", {
                                              0, 0, 21, 1),
                                            nrow=7, ncol=4, byrow = T)))
   dim23 = table(discr$D[,2], discr$D[,3])
-  expect_equivalent(dim23, as.table(matrix(c(0, 0, 16, 1,
+  expect_equal(ignore_attr = TRUE, dim23, as.table(matrix(c(0, 0, 16, 1,
                                              1, 0, 0, 5,
                                              0, 0, 11, 0,
                                              0, 0, 34, 0,
@@ -113,13 +115,14 @@ test_that("Testing discretize.jointly (\"kmeans+silhouette\")", {
                                            nrow=7, ncol=4, byrow = T)))
 
   # test ARI score
-  expect_equivalent(round(discr$csimilarity, digits = 3), 0.921)
+  expect_equal(ignore_attr = TRUE, round(discr$csimilarity, digits = 3), 0.921)
 
 
   # test 3
   # y != f(x)
   # z = f(x, y)
   # k = variable (determined by silhouette)
+  dqRNGkind("xoroshiro128+")
   dqset.seed(1234)
 
   x = dqrexp(n=50, rate = 0.6)
@@ -131,41 +134,42 @@ test_that("Testing discretize.jointly (\"kmeans+silhouette\")", {
      cluster_method=cluster_method)
 
   # test marginal levels
-  expect_equivalent(length(unique(discr$D[,1])), 3)
-  expect_equivalent(length(unique(discr$D[,2])), 2)
-  expect_equivalent(length(unique(discr$D[,3])), 2)
+  expect_equal(ignore_attr = TRUE, length(unique(discr$D[,1])), 3)
+  expect_equal(ignore_attr = TRUE, length(unique(discr$D[,2])), 2)
+  expect_equal(ignore_attr = TRUE, length(unique(discr$D[,3])), 2)
 
   # test marginal distribution
-  expect_equivalent(table(discr$D[,1]), as.table(c(34, 12, 4)))
-  expect_equivalent(table(discr$D[,2]), as.table(c(21, 29)))
-  expect_equivalent(table(discr$D[,3]), as.table(c(9, 41)))
+  expect_equal(ignore_attr = TRUE, table(discr$D[,1]), as.table(c(34, 12, 4)))
+  expect_equal(ignore_attr = TRUE, table(discr$D[,2]), as.table(c(21, 29)))
+  expect_equal(ignore_attr = TRUE, table(discr$D[,3]), as.table(c(9, 41)))
 
   # test 2d joint distributions
   dim12 = table(discr$D[,1], discr$D[,2])
-  expect_equivalent(dim12, as.table(matrix(c(13, 21,
+  expect_equal(ignore_attr = TRUE, dim12, as.table(matrix(c(13, 21,
                                              5, 7,
                                              3, 1),
                                            nrow=3, ncol=2, byrow = T)))
 
   dim13 = table(discr$D[,1], discr$D[,3])
-  expect_equivalent(dim13, as.table(matrix(c(3, 31,
+  expect_equal(ignore_attr = TRUE, dim13, as.table(matrix(c(3, 31,
                                              3, 9,
                                              3, 1),
                                            nrow=3, ncol=2, byrow = T)))
 
   dim23 = table(discr$D[,2], discr$D[,3])
-  expect_equivalent(dim23, as.table(matrix(c(3, 18,
+  expect_equal(ignore_attr = TRUE, dim23, as.table(matrix(c(3, 18,
                                              6, 23),
                                            nrow=2, ncol=2, byrow = T)))
 
   # test ARI score
-  expect_equivalent(round(discr$csimilarity, digits = 3), 0.992)
+  expect_equal(ignore_attr = TRUE, round(discr$csimilarity, digits = 3), 0.992)
 
   # test 4
   # y = f(x)
   # z = f(x)
   # k = fixed
   # using an alternate clustering strategy
+  dqRNGkind("xoroshiro128+")
   dqset.seed(2468)
 
   x = dqrnorm(n = 1000, mean = 10, sd = 2)
@@ -178,18 +182,18 @@ test_that("Testing discretize.jointly (\"kmeans+silhouette\")", {
   discr = discretize.jointly(data = data, cluster_label = alt.cluster)
 
   # test marginal levels
-  expect_equivalent(length(unique(discr$D[,1])), 5)
-  expect_equivalent(length(unique(discr$D[,2])), 3)
-  expect_equivalent(length(unique(discr$D[,3])), 2)
+  expect_equal(ignore_attr = TRUE, length(unique(discr$D[,1])), 5)
+  expect_equal(ignore_attr = TRUE, length(unique(discr$D[,2])), 3)
+  expect_equal(ignore_attr = TRUE, length(unique(discr$D[,3])), 2)
 
   # test marginal distribution
-  expect_equivalent(table(discr$D[,1]), as.table(c(82, 197, 252, 293, 176)))
-  expect_equivalent(table(discr$D[,2]), as.table(c(321, 454, 225)))
-  expect_equivalent(table(discr$D[,3]), as.table(c(472, 528)))
+  expect_equal(ignore_attr = TRUE, table(discr$D[,1]), as.table(c(82, 197, 252, 293, 176)))
+  expect_equal(ignore_attr = TRUE, table(discr$D[,2]), as.table(c(321, 454, 225)))
+  expect_equal(ignore_attr = TRUE, table(discr$D[,3]), as.table(c(472, 528)))
 
   # test 2d joint distributions
   dim12 = table(discr$D[,1], discr$D[,2])
-  expect_equivalent(dim12, as.table(matrix(c(18, 59, 5,
+  expect_equal(ignore_attr = TRUE, dim12, as.table(matrix(c(18, 59, 5,
                                              0, 14, 183,
                                              0, 252, 0,
                                              292, 1, 0,
@@ -197,7 +201,7 @@ test_that("Testing discretize.jointly (\"kmeans+silhouette\")", {
                                            nrow=5, ncol=3, byrow = T)))
 
   dim13 = table(discr$D[,1], discr$D[,3])
-  expect_equivalent(dim13, as.table(matrix(c(14, 68,
+  expect_equal(ignore_attr = TRUE, dim13, as.table(matrix(c(14, 68,
                                              165, 32,
                                              0, 252,
                                              265, 28,
@@ -205,12 +209,12 @@ test_that("Testing discretize.jointly (\"kmeans+silhouette\")", {
                                            nrow=5, ncol=2, byrow = T)))
 
   dim23 = table(discr$D[,2], discr$D[,3])
-  expect_equivalent(dim23, as.table(matrix(c(279, 42,
+  expect_equal(ignore_attr = TRUE, dim23, as.table(matrix(c(279, 42,
                                              0, 454,
                                              193, 32),
                                            nrow=3, ncol=2, byrow = T)))
 
   # test ARI score
-  expect_equivalent(round(discr$csimilarity, digits = 3), 0.915)
+  expect_equal(ignore_attr = TRUE, round(discr$csimilarity, digits = 3), 0.915)
 
 })

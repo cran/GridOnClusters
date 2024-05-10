@@ -4,7 +4,16 @@ output:
   pdf_document: default
 ---
 # NEWS
+## Version 0.1.0.1
 
+   2024-05-10
+  1. Update the test cases to be consistent with testthat (>= 3.0.0).
+   
+   
+   2024-04-17
+   1. Created version 0.1.0.1 from 0.1.0.
+   1. Fixed a testthat testing issue caused by a new upcoming version of the 'dqrng' package, as notified by the author of the package.
+   
 ## Version 0.1.0
 
    2022-01-25
