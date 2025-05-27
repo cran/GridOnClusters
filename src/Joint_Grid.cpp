@@ -122,8 +122,7 @@ vector<vector<double> > prep_index(vector<double> &c1, vector<double> &c2, doubl
     int final_index_c1 = distance(c1_r, c1.end());
     int final_index_c2 = distance(c2.begin(), c2_r - 1);
 
-    for (; real_data != data_index[0].end(); *real_data++, *c1_index++, *c2_index++) {
-
+    for (; real_data != data_index[0].end(); ++real_data, ++c1_index, ++c2_index) {
         if (iter_c1 == c1_new.end()) {//c1 is empty, put c2
             *real_data = *iter_c2;
             iter_c2++;

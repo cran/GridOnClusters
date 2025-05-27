@@ -4,6 +4,12 @@ output:
   pdf_document: default
 ---
 # NEWS
+## Version 0.1.0.2
+
+   2025-05-05
+  1. Fixed a bug in the prep_index function (located in Joint_Grid.cpp) that caused incorrect subtraction logic.
+   
+
 ## Version 0.1.0.1
 
    2024-05-10
