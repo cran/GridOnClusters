@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_patterns.R
 \name{plotGOCpatterns}
 \alias{plotGOCpatterns}
-\title{(OBOSOLETE) Plotting the continuous data along with cluster-preserving Grid}
+\title{Deprecated: Please use \code{plot()} instead}
 \usage{
 plotGOCpatterns(data, res)
 }
@@ -15,3 +15,4 @@ plotGOCpatterns(data, res)
 Plots examples of jointly discretizing continuous data based on grids that 
 preserve clusters in the original data.
 }
+\keyword{internal}

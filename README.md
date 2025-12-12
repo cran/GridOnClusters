@@ -12,11 +12,23 @@ bibliography: inst/REFERENCES.bib
 
 ### Overview
 
-The package offers a method to discretize multivariate continuous data using a grid that captures the joint distribution via preserving clusters in the original data (Wang, Kumar, and Song 2020). Joint grid discretization is applicable as a data transformation step before using other methods to infer association, function, or causality without assuming a parametric model.
+The package offers multiple methods to discretize multivariate 
+continuous data using a grid that captures the joint 
+distribution via preserving clusters in original data
+(Wang, Kumar, and Song 2020). Joint grid discretization is 
+applicable as a data transformation step before using 
+other methods to infer association, function, or 
+causality without assuming a parametric model.
 
 ### When to use the package
 
-Most available discretization methods process one variable at a time, such as ['Ckmeans.1d.dp'](https://cran.r-project.org/package=Ckmeans.1d.dp). If discretizing each variable independently misses patterns arising from the joint distribution of multiple involved variables, one may benefit from using the joint discretization method in this package.
+Most available discretization methods process one 
+variable at a time, such as 
+['Ckmeans.1d.dp'](https://cran.r-project.org/package=Ckmeans.1d.dp). 
+As discretizing each variable independently may mis-represent 
+patterns arising from the joint distribution of multiple variables, 
+one may benefit from joint discretization. The methods can handle
+both unlabeled and labeled data.
 
 ### To download and install the package
 

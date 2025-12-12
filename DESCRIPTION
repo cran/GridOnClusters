@@ -1,8 +1,9 @@
 Package: GridOnClusters
 Type: Package
-Title: Cluster-Preserving Multivariate Joint Grid Discretization
-Version: 0.1.0.2
-Date: 2025-05-09
+Title: Multivariate Joint Grid Discretization
+Version: 0.3.2
+Date: 2025-12-12
+Depends: R (>= 3.5.0)
 Authors@R: 
     c(person(given = "Jiandong",
              family = "Wang",
@@ -23,22 +24,22 @@ Author: Jiandong Wang [aut],
   Joe Song [aut, cre] (ORCID: <https://orcid.org/0000-0002-6883-6547>)
 Maintainer: Joe Song <joemsong@nmsu.edu>
 Description: Discretize multivariate continuous data using a grid
- that captures the joint distribution via preserving clusters in
- the original data (Wang et al 2020) <doi:10.1145/3388440.3412415>.
- Joint grid discretization is applicable as a data transformation step
- to prepare data for model-free inference of association, function, or
- causality.
+ to capture the joint distribution that preserves clusters in
+ original data. It can handle both labeled or unlabeled data.
+ Both published methods (Wang et al 2020) <doi:10.1145/3388440.3412415>
+ and new methods are included. Joint grid discretization
+ can prepare data for model-free inference of association,
+ function, or causality.
 Imports: Rcpp, Ckmeans.1d.dp, cluster, fossil, dqrng, mclust, Rdpack,
         plotrix
-Suggests: FunChisq, knitr, testthat (>= 3.0.0), rmarkdown
+Suggests: FunChisq, knitr, testthat (>= 2.1.0), rmarkdown
 RdMacros: Rdpack
 License: LGPL (>= 3)
 Encoding: UTF-8
-LinkingTo: Rcpp
-RoxygenNote: 7.3.1
+LinkingTo: BH, Rcpp
+RoxygenNote: 7.3.3
 NeedsCompilation: yes
-Config/testthat/edition: 3
 VignetteBuilder: knitr
-Packaged: 2025-05-27 08:22:29 UTC; joesong
+Packaged: 2025-12-12 13:19:38 UTC; joesong
 Repository: CRAN
-Date/Publication: 2025-05-27 09:10:19 UTC
+Date/Publication: 2025-12-12 13:40:07 UTC

@@ -10,24 +10,79 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// findgrid
-Rcpp::List findgrid(const Rcpp::List cluster_info, int k, int nobs, int ndims, const Rcpp::IntegerVector& bin_limit);
-RcppExport SEXP _GridOnClusters_findgrid(SEXP cluster_infoSEXP, SEXP kSEXP, SEXP nobsSEXP, SEXP ndimsSEXP, SEXP bin_limitSEXP) {
+// test_upsilon_by_hashing
+void test_upsilon_by_hashing();
+RcppExport SEXP _GridOnClusters_test_upsilon_by_hashing() {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    test_upsilon_by_hashing();
+    return R_NilValue;
+END_RCPP
+}
+// median_distance_c
+List median_distance_c(const NumericMatrix& data, const NumericMatrix& labels);
+RcppExport SEXP _GridOnClusters_median_distance_c(SEXP dataSEXP, SEXP labelsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Rcpp::List >::type cluster_info(cluster_infoSEXP);
+    Rcpp::traits::input_parameter< const NumericMatrix& >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< const NumericMatrix& >::type labels(labelsSEXP);
+    rcpp_result_gen = Rcpp::wrap(median_distance_c(data, labels));
+    return rcpp_result_gen;
+END_RCPP
+}
+// mean_distance_c
+List mean_distance_c(const NumericMatrix& data, const NumericMatrix& labels);
+RcppExport SEXP _GridOnClusters_mean_distance_c(SEXP dataSEXP, SEXP labelsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const NumericMatrix& >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< const NumericMatrix& >::type labels(labelsSEXP);
+    rcpp_result_gen = Rcpp::wrap(mean_distance_c(data, labels));
+    return rcpp_result_gen;
+END_RCPP
+}
+// findgrid
+Rcpp::List findgrid(const List cluster_info, int k, int nobs, int ndims, const IntegerVector& min_bins, const IntegerVector& max_bins, String method, double cutoff, bool entropy, bool reduction, int n_thread);
+RcppExport SEXP _GridOnClusters_findgrid(SEXP cluster_infoSEXP, SEXP kSEXP, SEXP nobsSEXP, SEXP ndimsSEXP, SEXP min_binsSEXP, SEXP max_binsSEXP, SEXP methodSEXP, SEXP cutoffSEXP, SEXP entropySEXP, SEXP reductionSEXP, SEXP n_threadSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const List >::type cluster_info(cluster_infoSEXP);
     Rcpp::traits::input_parameter< int >::type k(kSEXP);
     Rcpp::traits::input_parameter< int >::type nobs(nobsSEXP);
     Rcpp::traits::input_parameter< int >::type ndims(ndimsSEXP);
-    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type bin_limit(bin_limitSEXP);
-    rcpp_result_gen = Rcpp::wrap(findgrid(cluster_info, k, nobs, ndims, bin_limit));
+    Rcpp::traits::input_parameter< const IntegerVector& >::type min_bins(min_binsSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector& >::type max_bins(max_binsSEXP);
+    Rcpp::traits::input_parameter< String >::type method(methodSEXP);
+    Rcpp::traits::input_parameter< double >::type cutoff(cutoffSEXP);
+    Rcpp::traits::input_parameter< bool >::type entropy(entropySEXP);
+    Rcpp::traits::input_parameter< bool >::type reduction(reductionSEXP);
+    Rcpp::traits::input_parameter< int >::type n_thread(n_threadSEXP);
+    rcpp_result_gen = Rcpp::wrap(findgrid(cluster_info, k, nobs, ndims, min_bins, max_bins, method, cutoff, entropy, reduction, n_thread));
+    return rcpp_result_gen;
+END_RCPP
+}
+// upsilon_c
+List upsilon_c(const NumericMatrix& data, bool log);
+RcppExport SEXP _GridOnClusters_upsilon_c(SEXP dataSEXP, SEXP logSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const NumericMatrix& >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< bool >::type log(logSEXP);
+    rcpp_result_gen = Rcpp::wrap(upsilon_c(data, log));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_GridOnClusters_findgrid", (DL_FUNC) &_GridOnClusters_findgrid, 5},
+    {"_GridOnClusters_test_upsilon_by_hashing", (DL_FUNC) &_GridOnClusters_test_upsilon_by_hashing, 0},
+    {"_GridOnClusters_median_distance_c", (DL_FUNC) &_GridOnClusters_median_distance_c, 2},
+    {"_GridOnClusters_mean_distance_c", (DL_FUNC) &_GridOnClusters_mean_distance_c, 2},
+    {"_GridOnClusters_findgrid", (DL_FUNC) &_GridOnClusters_findgrid, 11},
+    {"_GridOnClusters_upsilon_c", (DL_FUNC) &_GridOnClusters_upsilon_c, 2},
     {NULL, NULL, 0}
 };
 

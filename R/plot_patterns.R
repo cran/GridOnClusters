@@ -4,10 +4,10 @@
 #    Dec 6, 2021. Added function plot.GridOnClusters()
 # Copyright (c) NMSU Song lab
 
-#' Plotting the continuous data along with cluster-preserving Grid
+#' Plotting Grid on Continuous Data 
 #' 
-#' Plots examples of jointly discretizing continuous data based on grids that 
-#' preserve clusters in the original data.
+#' Plots discretized data based on grid that 
+#' preserves clusters in original data.
 #' 
 #' @importFrom grDevices colorRampPalette palette
 #' @importFrom graphics abline legend mtext par plot strheight strwidth
@@ -21,98 +21,124 @@
 #' @param main.table the title of the discretized data plots
 #' @param sub the subtitle
 #' @param pch the symbol for points on the scatter plots
+#' @param col the color of data points
+#' @param line_col the color of grid lines
+#' @param cex A numerical value giving the amount by 
+#' which plotting text and symbols should be magnified 
+#' relative to the default.
+#' @param plot.table a logical to show the contingency 
+#'   table. Default: \code{TRUE}.
 #' @param ... additional graphical parameters
 #' 
 #' @export
 plot.GridOnClusters = function(
-   x, xlab=NULL, ylab=NULL, main=NULL, 
-   main.table=NULL, sub=NULL, pch = 19,  ...)
+    x, xlab=NULL, ylab=NULL, main=NULL, 
+    main.table=NULL, col, line_col="black",
+    cex = 1.125, sub=NULL, pch = 19, 
+    plot.table = TRUE, ...)
 {
-   k = length(unique(x$clabels))
-   mar = c(2.5,2.5,2.5,3.5)
-   par(mar=mar, mgp=c(3,1,0)-c(1.5,0.5,0), lwd=2)
-   dims = dim(x$data)[2]
-
-   
-   #col.palette = palette()[-1]
-   l = 0
-   for(i in c(1:(dims-1))){
-      for(j in c((i+1):dims)){
-         l = l + 1
-         
-         #if(is.null(xlab)) xlab <- paste0("dimension ",i)
-         #if(is.null(ylab)) ylab <- paste0("dimension ",j)
-          xlab <- paste0("dimension ",i)
-          ylab <- paste0("dimension ",j)
-         if(is.null(main)) main <- paste0("Original Data\nMethod = ", x$method)
-         if(is.null(main.table)) main.table <- paste0("Discretized Data\nMethod = ", x$method)
-               
-         #col <- col.palette[l]
-         #labelcol <- colorRampPalette(c("black", col))
-         #plot(x$data[,i], x$data[,j], main="", col=labelcol(k)[x$clabels], 
-         #     pch=19, cex.axis=0.8, cex=0.7, xlab = xlab, ylab = ylab)
-         plot(x$data[,i], x$data[,j], main="", col=x$clabels, 
-              pch=pch, cex.axis=0.8, cex=0.7, xlab = xlab, ylab = ylab)
-         mtext(text = main, side = 3, line = 0.25, cex=1.125)
-         abline(v=x$grid[[i]], h=x$grid[[j]], col="black", lty="dotted")
-         tab <- as.matrix(table(-x$D[, j], x$D[, i]))
-         coord <- par("usr")
-         #color.legend(xl = coord[2]+strwidth("0")*3,
-         #             xr = coord[2]+strwidth("0")*5,
-         #             yb = mean(c(coord[4],coord[3])), 
-         #             yt = coord[4], 
-         #             legend = seq(length(unique(x$clabels))),
-         #             rect.col = unique(labelcol(k)[seq(length(unique(x$clabels)))]), 
-         #             gradient="y")
-         FunChisq::plot_table(
-            tab, xlab=xlab, ylab=ylab, # col=x$clabels, 
-            main=main.table, highlight="none", value.cex=4/max(dim(tab)),
-            mar = c(2.5, 2.5, 2.5, 2.5))
+  k = length(unique(x$clabels))
+  mar = c(2.5,2.5,2.5,3.5)
+  par(mar=mar, mgp=c(3,1,0)-c(1.5,0.5,0), lwd=2)
+  dims = dim(x$data)[2]
+  
+  #col.palette = palette()[-1]
+  l = 0
+  for(i in c(1:(dims-1))){
+    for(j in c((i+1):dims)){
+      l = l + 1
+      
+      #if(is.null(xlab)) xlab <- paste0("dimension ",i)
+      #if(is.null(ylab)) ylab <- paste0("dimension ",j)
+      if(is.null(colnames(x$data))){
+        xlab <- paste0("dimension ",i)
+        ylab <- paste0("dimension ",j)
+      } 
+      else{
+        xlab <- colnames(x$data)[i]
+        ylab <- colnames(x$data)[j]
       }
-   }
+      if(is.null(main)) main <- paste0("Original Data\nMethod = ", x$cluster_method, " & ", x$grid_method)
+      if(is.null(main.table)) main.table <- paste0("Discretized Data\nMethod = ", x$cluster_method, " & ", x$grid_method)
+      
+      #col <- col.palette[l]
+      #labelcol <- colorRampPalette(c("black", col))
+      #plot(x$data[,i], x$data[,j], main="", col=labelcol(k)[x$clabels], 
+      #     pch=19, cex.axis=0.8, cex=0.7, xlab = xlab, ylab = ylab)
+      if (missing(col)){
+        col=x$clabels
+      }
+      plot(x$data[,i], x$data[,j], main="", col=col, 
+           pch=pch, cex.axis=0.8, cex=0.7, xlab = xlab, ylab = ylab)
+      mtext(text = main, side = 3, line = 0.25, cex=cex)
+      abline(v=x$grid[[i]], h=x$grid[[j]], col=line_col, lty="dotted")
+      tab <- as.matrix(table(-x$D[, j], x$D[, i]))
+      coord <- par("usr")
+      #color.legend(xl = coord[2]+strwidth("0")*3,
+      #             xr = coord[2]+strwidth("0")*5,
+      #             yb = mean(c(coord[4],coord[3])), 
+      #             yt = coord[4], 
+      #             legend = seq(length(unique(x$clabels))),
+      #             rect.col = unique(labelcol(k)[seq(length(unique(x$clabels)))]), 
+      #             gradient="y")
+      if(plot.table){
+        FunChisq::plot_table(
+          tab, xlab=xlab, ylab=ylab, # col=x$clabels, 
+          main=main.table, highlight="none", value.cex=4/max(dim(tab)),
+          mar = c(2.5, 2.5, 2.5, 2.5))
+      }
+    }
+  }
 }
 
 
-#' (OBOSOLETE) Plotting the continuous data along with cluster-preserving Grid
+# @title Plotting Continuous Data along with Cluster-Preserving Grid
+#' @title Deprecated: Please use \code{plot()} instead
 #' 
+#' @description 
 #' Plots examples of jointly discretizing continuous data based on grids that 
 #' preserve clusters in the original data.
 #' 
 #' @param data the input continuous data matrix
 #' @param res the result generated by discretize.jointly
-#' 
+#' @keywords internal
 #' @export
 plotGOCpatterns = function(data, res)
 {
-   k = length(unique(res$clabels))
-   mar = c(2.5,2.5,2.5,3.5)
-   par(mar=mar, mgp=c(3,1,0)-c(1.5,0.5,0), lwd=2)
-   dims = dim(data)[2]
-   
-   col.palette = palette()[-1]
-   l = 0
-   for(i in c(1:(dims-1))){
-      for(j in c((i+1):dims)){
-         l = l + 1
-         col <- col.palette[l]
-         labelcol <- colorRampPalette(c("black", col))
-         plot(data[,i], data[,j], main="", col=labelcol(k)[res$clabels], 
-              pch=19, cex.axis=0.8, cex=0.7, xlab = paste0("dimension ",i), ylab = paste0("dimension ",j))
-         mtext(text = "Original Data", side = 3, line = 1, cex=1.5)
-         abline(v=res$grid[[i]], h=res$grid[[j]], col="black", lty="dotted")
-         tab <- as.matrix(table(-res$D[, j], res$D[, i]))
-         coord <- par("usr")
-         color.legend(xl = coord[2]+strwidth("0")*3,
-                      xr = coord[2]+strwidth("0")*5,
-                      yb = mean(c(coord[4],coord[3])), 
-                      yt = coord[4], 
-                      legend = seq(length(unique(res$clabels))),
-                      rect.col = unique(labelcol(k)[seq(length(unique(res$clabels)))]), 
-                      gradient="y")
-         FunChisq::plot_table(
-            tab, xlab=paste0("dimension ",i), ylab=paste0("dimension ",j),
-            col=col, main="Discretized data", highlight="none", 
-            mar = c(2.5, 2.5, 2.5, 2.5))
-      }
-   }
+  .Deprecated(
+    "plot", 
+    package = "GridOnClusters",
+    msg = "plotGOCpatterns() is deprecated as of version 0.1.0. Use plot() instead."
+  )
+  k = length(unique(res$clabels))
+  mar = c(2.5,2.5,2.5,3.5)
+  par(mar=mar, mgp=c(3,1,0)-c(1.5,0.5,0), lwd=2)
+  dims = dim(data)[2]
+  
+  col.palette = palette()[-1]
+  l = 0
+  for(i in c(1:(dims-1))){
+    for(j in c((i+1):dims)){
+      l = l + 1
+      col <- col.palette[l]
+      labelcol <- colorRampPalette(c("black", col))
+      plot(data[,i], data[,j], main="", col=labelcol(k)[res$clabels], 
+           pch=19, cex.axis=0.8, cex=0.7, xlab = paste0("dimension ",i), ylab = paste0("dimension ",j))
+      mtext(text = "Original Data", side = 3, line = 1, cex=1.5)
+      abline(v=res$grid[[i]], h=res$grid[[j]], col="black", lty="dotted")
+      tab <- as.matrix(table(-res$D[, j], res$D[, i]))
+      coord <- par("usr")
+      color.legend(xl = coord[2]+strwidth("0")*3,
+                   xr = coord[2]+strwidth("0")*5,
+                   yb = mean(c(coord[4],coord[3])), 
+                   yt = coord[4], 
+                   legend = seq(length(unique(res$clabels))),
+                   rect.col = unique(labelcol(k)[seq(length(unique(res$clabels)))]), 
+                   gradient="y")
+      FunChisq::plot_table(
+        tab, xlab=paste0("dimension ",i), ylab=paste0("dimension ",j),
+        col=col, main="Discretized data", highlight="none", 
+        mar = c(2.5, 2.5, 2.5, 2.5))
+    }
+  }
 }

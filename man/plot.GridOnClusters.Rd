@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_patterns.R
 \name{plot.GridOnClusters}
 \alias{plot.GridOnClusters}
-\title{Plotting the continuous data along with cluster-preserving Grid}
+\title{Plotting Grid on Continuous Data}
 \usage{
 \method{plot}{GridOnClusters}(
   x,
@@ -10,8 +10,12 @@
   ylab = NULL,
   main = NULL,
   main.table = NULL,
+  col,
+  line_col = "black",
+  cex = 1.125,
   sub = NULL,
   pch = 19,
+  plot.table = TRUE,
   ...
 )
 }
@@ -26,13 +30,24 @@
 
 \item{main.table}{the title of the discretized data plots}
 
+\item{col}{the color of data points}
+
+\item{line_col}{the color of grid lines}
+
+\item{cex}{A numerical value giving the amount by 
+which plotting text and symbols should be magnified 
+relative to the default.}
+
 \item{sub}{the subtitle}
 
 \item{pch}{the symbol for points on the scatter plots}
 
+\item{plot.table}{a logical to show the contingency 
+table. Default: \code{TRUE}.}
+
 \item{...}{additional graphical parameters}
 }
 \description{
-Plots examples of jointly discretizing continuous data based on grids that 
-preserve clusters in the original data.
+Plots discretized data based on grid that 
+preserves clusters in original data.
 }

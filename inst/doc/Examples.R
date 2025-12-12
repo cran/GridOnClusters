@@ -1,4 +1,5 @@
 ## ----setup, include = FALSE---------------------------------------------------
+
 knitr::opts_chunk$set(
    collapse = TRUE,
    comment = "#>"
@@ -10,14 +11,20 @@ x = rnorm(500)
 y = sin(x)+rnorm(500, sd = 0)
 z = cos(x)+rnorm(500, sd = 0)
 data = cbind(x, y, z)
-ks = 10
-
-res = discretize.jointly(data, k=ks, cluster_method = "Ball+BIC",
-                         grid_method = "Sort+split", min_level = 1)
-plot(res)
+ks = 2:20
 
 res = discretize.jointly(data, k=ks, cluster_method = "kmeans+silhouette", 
-                         grid_method = "Sort+split", min_level = 1) 
+                         grid_method = "Sort+split") 
+plot(res)
+
+res = discretize.jointly(
+  data, k=ks, cluster_method = "kmeans+silhouette", 
+  grid_method = "DP exact likelihood") 
+plot(res)
+
+res = discretize.jointly(
+  data, k=ks, cluster_method = "Ball+BIC", 
+  grid_method = "DP approx likelihood 1-way")
 plot(res)
 
 ## ----clustering nonlinear patterns by varying numbers of clusters, out.width="40%", fig.show="hold", fig.cap="Example 2. Using a range for the number of kmeans+silhouette and Ball+BIC clusters"----
@@ -27,12 +34,23 @@ z = ifelse(x >= -0.5 & x <= 0.5, 0, 1) + rnorm(100, 0, 0.1)
 data = cbind(x, y, z)
 ks = c(2:5)
 
-res = discretize.jointly(data, k=ks, cluster_method = "Ball+BIC",
-                         grid_method = "Sort+split", min_level = 1)
+#res = discretize.jointly(data, k=ks, cluster_method = "Ball+BIC",
+#                         grid_method = "Sort+split", min_level = 1)
+#plot(res)
+
+res = discretize.jointly(
+  data, k=ks, cluster_method = "kmeans+silhouette", 
+  grid_method = "Sort+split", min_level = 1) 
+
 plot(res)
 
-res = discretize.jointly(data, k=ks, cluster_method = "kmeans+silhouette", 
-                         grid_method = "Sort+split", min_level = 1) 
+#res = discretize.jointly(data, k=ks, cluster_method = "kmeans+silhouette", 
+#                         grid_method = "DP exact likelihood", min_level = 1) 
+#plot(res)
+
+res = discretize.jointly(
+  data, k=ks, cluster_method = "Ball+BIC", 
+  grid_method = "DP exact likelihood", min_level = 1) 
 plot(res)
 
 ## ----Example 3 using PAM for clustering, out.width="40%", fig.show="hold", fig.cap="Example 3. Using the partition around medoids clustering method."----
@@ -45,8 +63,12 @@ data = cbind(x, y, z)
 # pre-cluster the data using partition around medoids (PAM)
 cluster_label = cluster::pam(x=data, diss = FALSE, metric = "euclidean", k = 4)$clustering
 
-res = discretize.jointly(data, cluster_label = cluster_label,
-                         grid_method = "Sort+split", min_level = 1)
+res = discretize.jointly(
+  data, cluster_label = cluster_label,
+  grid_method = "Sort+split", min_level = 1)
+res = discretize.jointly(
+  data, cluster_label = cluster_label,
+  grid_method = "DP exact likelihood", min_level = 1)
 plot(res, main="Original data\nPAM clustering", 
      main.table="Discretized data\nPAM & Sort+split")
 
@@ -62,12 +84,24 @@ y=c(y,rnorm(2*n, sd=sd/3)+200)
 
 data = cbind(x, y)
 
-res = discretize.jointly(data, k=ks, cluster_method = "Ball+BIC",
-                         grid_method = "Sort+split", min_level = 1)
+res = discretize.jointly(
+  data, k=ks, cluster_method = "Ball+BIC",
+  grid_method = "Sort+split", min_level = 1)
 plot(res)
 
-res = discretize.jointly(data, k=ks, cluster_method = "kmeans+silhouette", 
-                         grid_method = "Sort+split", min_level = 1) 
+res = discretize.jointly(
+  data, k=ks, cluster_method = "kmeans+silhouette", 
+  grid_method = "Sort+split", min_level = 1) 
+plot(res)
+
+res = discretize.jointly(
+  data, k=ks, cluster_method = "kmeans+silhouette", 
+  grid_method = "DP approx likelihood 1-way", min_level = 1) 
+plot(res)
+
+res = discretize.jointly(
+  data, k=ks, cluster_method = "Ball+BIC",
+  grid_method = "DP approx likelihood 1-way", min_level = 1)
 plot(res)
 
 ## ----Example 5 bivariate, out.width="40%", fig.show="hold", fig.cap="Example 5. Multi-cluster random patterns using kmeans+silhouette and Ball+BIC clustering with a range."----
@@ -93,11 +127,164 @@ X.C3 <- matrix(
 
 data = rbind(X.C1, X.C3)
 
-res = discretize.jointly(data, k=ks, cluster_method = "Ball+BIC",
-                         grid_method = "Sort+split", min_level = 1)
+res = discretize.jointly(
+  data, k=ks, cluster_method = "Ball+BIC",
+  grid_method = "Sort+split", min_level = 1)
 plot(res)
 
-res = discretize.jointly(data, k=ks, cluster_method = "kmeans+silhouette", 
-                         grid_method = "Sort+split", min_level = 1) 
+res = discretize.jointly(
+  data, k=ks, cluster_method = "kmeans+silhouette", 
+  grid_method = "Sort+split", min_level = 1) 
 plot(res)
+
+res = discretize.jointly(
+  data, k=ks, cluster_method = "kmeans+silhouette", 
+  grid_method = "DP approx likelihood 1-way", 
+  min_level = 1, cutoff = 1) 
+plot(res)
+res = discretize.jointly(
+  data, k=ks, cluster_method = "Ball+BIC", 
+  grid_method = "DP approx likelihood 1-way", 
+  min_level = 1) 
+plot(res)
+
+## ----Example 6. Exclusive or, out.width="40%", fig.show="hold", fig.cap="Example 6. Exclusive or. Dim1 ⊕ Dim2, Dim3 and Dim4 are random"----
+n <- 100
+ks <- 2:10
+
+label = c(rep(1, n), rep(2,n), rep(3,n), rep(4,n))
+
+X1 = c(rnorm(n, 0, sd=2),
+     rnorm(n, 0, sd=2),
+     rnorm(n, 10, sd=2),
+     rnorm(n, 10, sd=2))
+
+X2 = c(rnorm(n, 10, sd=2),
+     rnorm(n, 0, sd=2),
+     rnorm(n, 10, sd=2),
+     rnorm(n, 0, sd=2))
+
+X3 = c(rnorm(4*n, 20, sd=10))
+
+X4 = c(rnorm(4*n, 3, sd=20))
+
+data = cbind(X1, X2, X3, X4)
+
+#res = discretize.jointly(data, k=ks, cluster_method = "kmeans+silhouette", 
+#                         grid_method = "DP approx likelihood", min_level = 1) 
+#plot(res)
+#
+#res = discretize.jointly(data, k=ks, cluster_method = "kmeans+silhouette", 
+#                         grid_method = "DP Compressed majority", min_level = 1) 
+#plot(res)
+
+#res = discretize.jointly(data, k=ks, cluster_method = "Ball+BIC", 
+#                         grid_method = "DP exact likelihood", min_level = 1) 
+#plot(res)
+
+res = discretize.jointly(
+  data, k=ks, cluster_method = "Ball+BIC", 
+  grid_method = "DP approx likelihood 1-way", 
+  min_level = 1) 
+plot(res)
+
+res = discretize.jointly(
+  data, k=ks, cluster_label = label,
+  grid_method = "DP approx likelihood 1-way", 
+  min_level = 1) 
+plot(res)
+
+#res = discretize.jointly(data, k=ks, cluster_label = label,
+#                         grid_method = "Sort+split", min_level = 1) 
+#plot(res)
+#
+#res = discretize.jointly(data, k=ks, cluster_method = "kmeans+silhouette", 
+#                         grid_method = "Sort+split", min_level = 1) 
+#plot(res)
+
+
+## ----Example 7. Three well separated rounds., out.width="40%", fig.show="hold", fig.cap="Example 7. Three rounds well seperated on x axis"----
+n <- 20
+ks <- 2:10
+
+label = c(rep(1, n), rep(2,5*n), rep(3, 5*n))
+
+X1 = c(rnorm(n, 0, sd=1), rnorm(5*n, 15, sd=3), rnorm(5*n, 35, sd=3))
+X2 = c(rnorm(n, 0, sd=1), rnorm(5*n, 0, sd=3), rnorm(5*n, 0, sd=3))
+
+data = cbind(X1, X2)
+
+res = discretize.jointly(
+  data, cluster_label = label,
+  grid_method = "DP exact likelihood", min_level = 1) 
+plot(res)
+res = discretize.jointly(
+  data,  cluster_label = label,
+  grid_method = "DP approx likelihood 1-way", 
+  min_level = 1) 
+plot(res)
+
+res.entropy = discretize.jointly(
+  data,  cluster_label = label,
+  grid_method = "DP exact likelihood", min_level = 1, entropy = TRUE) 
+plot(res.entropy)
+
+
+
+## ----Example 8. Four spheres with varying centers and radius, out.width="40%", fig.show="hold", fig.cap="Example 8. Four sphers with different centers and radius"----
+n <- 200
+ks <- 2:10
+
+label = c(rep(1, n), rep(2,5*n), rep(3,n), rep(4,3*n))
+
+X1 = c(rnorm(n, 0, sd=3), rnorm(5*n, 15, sd=3), rnorm(n, 5, sd=2), rnorm(3*n, 15, sd=4))
+
+X2 = c(rnorm(n, 0, sd=4), rnorm(5*n, 15, sd=3), rnorm(n, 10, sd=2), rnorm(3*n, 0, sd=4))
+
+data = cbind(X1, X2)
+
+res = discretize.jointly(
+  data, k=ks, cluster_method = "Ball+BIC",
+  grid_method = "DP exact likelihood", min_level = 1) 
+plot(res)
+
+res = discretize.jointly(
+  data, k=ks, cluster_method = "Ball+BIC",
+  grid_method = "DP approx likelihood 1-way", 
+  min_level = 1) 
+plot(res)
+
+res = discretize.jointly(
+  data, k=ks, cluster_method = "Ball+BIC",
+  grid_method = "DP exact likelihood", min_level = 1, entropy = TRUE) 
+plot(res)
+
+
+
+## ----Example 9. Two overlapping spheres, out.width="40%", fig.show="hold", fig.cap="Example 9. A small dense sphere overlapping a large sphere."----
+n <- 200
+ks <- 2:10
+
+label = c(rep(1, n), rep(2,5*n))
+
+X1 = c(rnorm(n, 0, sd=1), rnorm(5*n, 6, sd=3))
+X2 = c(rnorm(n, 0, sd=1), rnorm(5*n, 0, sd=3))
+
+data = cbind(X1, X2)
+
+res = discretize.jointly(
+  data, k=ks, cluster_label = label,
+  grid_method = "DP exact likelihood", min_level = 1) 
+plot(res)
+
+res = discretize.jointly(
+  data, k=ks,  cluster_label = label,
+  grid_method = "DP approx likelihood 1-way", 
+  min_level = 1) 
+plot(res)
+
+res.entropy = discretize.jointly(
+  data, k=ks,  cluster_label = label,
+  grid_method = "DP exact likelihood", min_level = 1, entropy = TRUE) 
+plot(res.entropy)
 

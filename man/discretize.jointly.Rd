@@ -2,75 +2,187 @@
 % Please edit documentation in R/discretize_jointly.R
 \name{discretize.jointly}
 \alias{discretize.jointly}
-\title{Discretize Multivariate Continuous Data by a Cluster-Preserving Grid}
+\title{Discretize Multivariate Continuous Data by Cluster-Preserving Grid}
 \usage{
 discretize.jointly(
   data,
   k = c(2:10),
   min_level = 1,
+  max_level = 100,
   cluster_method = c("Ball+BIC", "kmeans+silhouette", "PAM"),
-  grid_method = c("Sort+split", "MultiChannel.WUC"),
-  cluster_label = NULL
+  grid_method = c("DP approx likelihood 1-way", "DP approx likelihood 2-way",
+    "DP exact likelihood", "DP Compressed majority", "DP", "Sort+split",
+    "MultiChannel.WUC"),
+  eval_method = c("ARI", "purity", "upsllion", "CAIR"),
+  cluster_label = NULL,
+  cutoff = 0,
+  entropy = FALSE,
+  noise = FALSE,
+  dim_reduction = FALSE,
+  scale = FALSE,
+  variance = 0.5,
+  nthread = 1
 )
 }
 \arguments{
-\item{data}{a matrix containing two or more continuous variables.
-Columns are variables, rows are observations.}
+\item{data}{a numeric matrix for multivariate data or a numeric vector for
+univariate data. In case of a matrix, columns are continuous variables;
+rows are observations.}
 
-\item{k}{either an integer, a vector of integers, or \code{Inf}, specifying 
-different ways to find clusters in \code{data}. The default is a vector 
-containing integers from 2 to 10. If 'k' is a single number, \code{data} will 
-be grouped into into exactly 'k' clusters. If 'k' is an integer vector, an 
-optimal 'k' is chosen from among the integers, that maximizes the average 
-silhouette width. If 'k' is set to \code{Inf}, an optimal k is chosen among
-2 to \code{nrow(data)}. If \code{cluster_label} is specified, \code{k} is 
-ignored.}
+\item{k}{either an integer, a integer vector,
+or \code{Inf}, specifying the number of clusters.
+The default is a vector of integers from 2 to 10.
+If \code{k} is a single number, \code{data} will
+be grouped into into exactly \code{k} clusters.
+If \code{k} is an integer vector, an optimal
+\code{k} is chosen among the integers. If \code{k}
+is set to \code{Inf}, an optimal \code{k} is
+chosen from 2 to \code{nrow(data)}. If
+\code{cluster_label} is specified,
+\code{k} is ignored.}
 
-\item{min_level}{integer or vector, signifying the minimum number of levels 
+\item{min_level}{an integer or an integer vector, to specify the minimum number of levels
 along each dimension. If a vector of size \code{ncol(data)}, then each element
 will be mapped 1:1 to each dimension in order. If an integer, then all dimensions
 will have the same minimum number of levels.}
 
-\item{cluster_method}{the clustering method to be used. Ignored if cluster labels 
-are given
-"kmeans+silhouette" will use k-means to cluster \code{data} and the average 
-Silhouette score to select the number of clusters k.
-"Ball+BIC" will use Mclust (modelNames = "VII") to cluster \code{data} and 
-BIC score to select the number of cluster k.}
+\item{max_level}{an integer or an integer vector, to specify the maximum
+number of levels along each dimension. It works in the
+same way as \code{min_level}. \code{max_level} will
+be set to the smaller between number of compressed zones and itself,
+if \code{grid_method} is a likelihood approach or
+"DP Compressed majority".}
 
-\item{grid_method}{the discretization method to be used. 
-"Sort+split" will sort the cluster by cluster mean in each dimension and then
- split consecutive pairs only if the sum of the error rate of each cluster is
- less than or equal to 50%. It is possible that no grid line will be added
- in a certain dimension. The maximum number of lines is the number of 
- clusters minus one.
- "MultiChannel.WUC" will split each dimension by weighted with-in cluster
- sum of squared distances by "Ckmeans.1d.dp::MultiChannel.WUC". Applied in 
- each projection on each dimension. The channel of each point is defined by 
- its multivariate cluster label.}
+\item{cluster_method}{a character string to specify a clustering
+method to be used. Ignored if \code{cluster_label} is not \code{NULL}.
+We offer three build-in options:
 
-\item{cluster_label}{a vector of user-specified cluster labels for each observation
-in \code{data}. The user is free to choose any clustering.
-If unspecified, k-means clustering is used by default.}
+\code{"Ball+BIC"} (default) uses \code{mclust::Mclust}
+(\code{modelNames = "VII"} for 2-D or higher dimensions;
+\code{"V"} for 1-D) to cluster \code{data} and
+BIC score to select number of clusters.
+
+\code{"kmeans+silhouette"} uses k-means to cluster \code{data} and the average
+Silhouette width to select number of clusters.
+
+\code{"PAM"} uses the algorithm partition around medoids to perform clustering.}
+
+\item{grid_method}{a character string to specify a grid
+discretization method. Default:
+\code{"DP approx likelihood 1-way"}. The methods
+can be roughly separate into three different categories:
+by cluster likelihood, by density, and by SSE (Sum of Squared Errors).
+See Details for more information.}
+
+\item{eval_method}{a character string to
+specify a method to evaluate quality
+of discretized data.}
+
+\item{cluster_label}{a vector of labels for each data point or
+observation. It can be class labels on the input \code{data} for
+supervised learning; it can also be cluster labels for
+unsupervised learning. If \code{NULL} (default), clustering
+is performed to obtain labels.}
+
+\item{cutoff}{a numeric value. A grid line is added only when the
+quality of the line is not smaller than \code{cutoff}.
+It is applicable only to \code{grid_method} \code{"DP"} or
+\code{"DP Compressed majority"}.}
+
+\item{entropy}{a logical to chose either entropy
+(\code{TRUE}) or likelihood (\code{FALSE}, default).}
+
+\item{noise}{a logical to apply jitter noise to original
+data if \code{TRUE}. Default: \code{FALSE}.
+It is only applicable
+to \code{cluster_method} \code{"Ball+BIC"}.
+When data contain many duplicated values,
+adding noise can help \code{Mclust} clustering.}
+
+\item{dim_reduction}{a logical to turn on/off
+dimension reduction. Default: \code{FALSE}.}
+
+\item{scale}{a logical to specify linear
+scaling of the variable in each dimension
+if \code{TRUE}. Default: \code{FALSE}.}
+
+\item{variance}{a numeric value to specify
+noise variance to be added to the data}
+
+\item{nthread}{an integer to specify number
+of CPU threads to use. Automatically adjusted
+if invalid or exceeding available cores.}
 }
 \value{
 A list that contains four items:
-\item{\code{D}}{a matrix that contains the discretized version of the original \code{data}.
+\item{\code{D}}{a matrix of discretized values from original \code{data}.
 Discretized values are one(1)-based.}
 
-\item{\code{grid}}{a list of vectors containing decision boundaries for each variable/dimension.}
+\item{\code{grid}}{a list of numeric vectors of decision boundaries for each variable/dimension.}
 
-\item{\code{clabels}}{a vector containing cluster labels for each observation in \code{data}.}
+\item{\code{clabels}}{a vector of cluster labels for each observation in \code{data}.}
 
 \item{\code{csimilarity}}{a similarity score between clusters from joint discretization
 \code{D} and cluster labels \code{clabels}. The score is the adjusted Rand index.}
 }
 \description{
-Discretize multivariate continuous data using a grid that captures the joint distribution via
-preserving clusters in the original data
+Discretize multivariate continuous data using a grid that captures
+the joint distribution via preserving clusters in original data
 }
 \details{
-The function implements algorithms described in \insertCite{Jwang2020BCB}{GridOnClusters}.
+The function implements both published algorithms described in
+\insertCite{Jwang2020BCB}{GridOnClusters} and new algorithms for
+multivariate discretization.
+
+The included grid discretization methods can be summarized into three categories:
+\itemize{
+\item By Density
+\itemize{
+\item \code{"Sort+split"} \insertCite{Jwang2020BCB}{GridOnClusters}
+sorts clusters by mean in each dimension. It then
+splits consecutive pairs only if the sum of error rate of each cluster is
+less than or equal to 50\%. It is possible that no grid line will be added
+in a certain dimension. The maximum number of lines is the number of
+clusters minus one.
+}
+\item By SSE (Sum of Squared Errors)
+\itemize{
+\item \code{"MultiChannel.WUC"} splits each dimension by weighted with-in cluster
+sum of squared distances by \code{Ckmeans.1d.dp::MultiChannel.WUC()}. Applied in
+each projection on each dimension. The channel of each point is defined by
+its multivariate cluster label.
+\item \code{"DP"} orders labels by data in each dimension and then cuts data
+into a maximum of \code{max_level} bins. It evaluates the quality of each
+cut to find a best number of bins.
+\item \code{"DP Compressed majority"} orders labels by data in each dimension.
+It then compresses labels neighbored by the same label to avoid
+discretization within consecutive points of the same cluster label, so as to
+greatly reduce runtime of dynamic programming. Then it cuts data into
+a maximum of \code{max_level} bins, and it evaluates the quality of
+each cut by the majority of data to find a best number of bins.
+}
+\item By cluster likelihood
+\itemize{
+\item \code{"DP exact likelihood"} orders labels by data in each dimension.
+It then compresses labels neighbored by the same label to avoid
+discretization within consecutive points of the same cluster label,
+so as to greatly reduce runtime of dynamic programming.
+Then cut the data into a maximum of \code{max_level} bins.
+\item \code{"DP approx likelihood 1-way"} is a sped-up version of the
+\code{"DP exact likelihood"} method, but it is not always optimal.
+\item \code{"DP approx likelihood 2-way"} is a bidirectional variant of the
+\code{"DP approx likelihood"} method. It performs approximate dynamic
+programming in both the forward and backward directions and selects
+the better of the two results. This approach provides additional robustness
+compared to the one-directional version, but optimality is not always achieved.
+}
+}
+}
+\note{
+The default \code{grid_method} is changed
+from \code{"Sort+Split"} \insertCite{Jwang2020BCB}{GridOnClusters} (up to released package version 0.1.0.2)
+to \code{"DP approx likelihood 1-way"} (since version 0.3.2),
+representing a major improvement.
 }
 \examples{
 # using a specified k
@@ -117,5 +229,5 @@ discretized_data = discretize.jointly(data, cluster_label = cluster_label)$D
 See \link[Ckmeans.1d.dp]{Ckmeans.1d.dp} for discretizing univariate continuous data.
 }
 \author{
-Jiandong Wang, Sajal Kumar and Mingzhou Song
+Jiandong Wang, Sajal Kumar, and Mingzhou Song
 }

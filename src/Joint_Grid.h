@@ -10,21 +10,43 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
-#include <math.h>
+#include <cmath>
+#include <thread>
+#include <mutex>
 #include <climits>
-
+#include <cassert>
 #include "Clusters.h"
+#include "evaluation.h"
+#include "Cut_by_density.h"
+#include "Cutting_Cluster_dp.h"
+#include "Cutting_Cluster_dp_compressed.h"
+#include "discretization.h"
+#include "MyHash.h"
+#include "Dimension_reduction.h"
+#include "upsilon.h"
+#include "utils.h"
 
 using namespace std;
 
-vector< vector<double > > Find_Grid(Cluster &clusters, vector<int> min_bin_limit);
+struct grid Find_Grid(Cluster& clusters, const vector<int>& min_bin_limit, const vector<int>& max_bin_limit,
+                      const string& method = "DP approx likelihood", double cut_off = 0.05,
+                      bool entropy = false, bool dim_reduct = false, size_t n_thread = 1);
 
-vector<double> Find_1D_Grid(Cluster &clusters, int dim, vector<int> min_bin_limit);
+void Find_Grid_thread(Cluster& clusters, const vector<int>& min_bin_limit, const vector<int>& max_bin_limit, const string& method,
+                      double cut_off, bool entropy, vector<vector<double>>& lines_multi_dim, vector<size_t>& num_lines,
+                      vector<vector<double>>& medians_multi_dim, size_t dim_u, size_t dim_l, vector<double> & best_bic_all);
 
-vector<vector<double> > prep_index(vector<double> &c1, vector<double> &c2, double middle_1, double middle_2);
+vector<double>
+Find_1D_Grid(Cluster& clusters, int dim_input, int min_bin, int max_bin, vector<double>& medians, const string& method,
+double cut_off, bool entropy, double & best_bic, const bool& increasing = true);
 
+bool comp(vector<double>& x, vector<double>& y);
 
-double binary_search_index(const vector<vector<double> > &c_index, const int left, const int right, const int size_c1,
-                        const int size_c2, bool &overlap, vector<double> &err_sum);
+//static const std::vector<double> *spx;
 
+// static bool compi(size_t i, size_t j);
+
+bool test_sorted(const vector<double>& x, bool increasing);
+
+double euclidean_distance(const vector<double>& point1, const vector<double>& point2);
 #endif //JOINT_GRID_JOINT_GRID_H
